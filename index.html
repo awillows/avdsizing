@@ -1,0 +1,2219 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infrastructure Sizing Tool - Microsoft Learn</title>
+    <style>
+        /* ============================================
+           Microsoft Learn Design System
+           Based on Fluent 2 design tokens & Learn docs
+           ============================================ */
+
+        :root {
+            /* Fluent 2 color tokens */
+            --color-brand-primary: #0078d4;
+            --color-brand-primary-hover: #106ebe;
+            --color-brand-primary-active: #005a9e;
+            --color-brand-tint-40: #eff6fc;
+            --color-brand-tint-30: #deecf9;
+            --color-neutral-foreground-1: #242424;
+            --color-neutral-foreground-2: #424242;
+            --color-neutral-foreground-3: #616161;
+            --color-neutral-foreground-disabled: #bdbdbd;
+            --color-neutral-background-1: #ffffff;
+            --color-neutral-background-2: #fafafa;
+            --color-neutral-background-3: #f5f5f5;
+            --color-neutral-background-4: #f0f0f0;
+            --color-neutral-stroke-1: #d1d1d1;
+            --color-neutral-stroke-2: #e0e0e0;
+            --color-neutral-stroke-3: #ebebeb;
+            --color-success: #107c10;
+            --color-success-bg: #dff6dd;
+            --color-warning: #797600;
+            --color-warning-bg: #fff4ce;
+            --color-info: #0078d4;
+            --color-info-bg: #eff6fc;
+            --color-danger: #d13438;
+            --color-danger-bg: #fde7e9;
+
+            /* Typography tokens */
+            --font-family-base: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', sans-serif;
+            --font-family-mono: 'Cascadia Code', 'Fira Code', Consolas, 'Courier New', monospace;
+            --font-size-base-100: 12px;
+            --font-size-base-200: 13px;
+            --font-size-base-300: 14px;
+            --font-size-base-400: 16px;
+            --font-size-base-500: 20px;
+            --font-size-base-600: 24px;
+            --font-size-hero: 32px;
+            --font-weight-regular: 400;
+            --font-weight-semibold: 600;
+            --font-weight-bold: 700;
+            --line-height-base: 1.6;
+
+            /* Spacing tokens */
+            --spacing-xs: 4px;
+            --spacing-s: 8px;
+            --spacing-m: 12px;
+            --spacing-l: 16px;
+            --spacing-xl: 24px;
+            --spacing-xxl: 32px;
+            --spacing-xxxl: 48px;
+
+            /* Layout tokens */
+            --border-radius-small: 4px;
+            --border-radius-medium: 8px;
+            --border-radius-large: 12px;
+            --shadow-2: 0 1px 2px rgba(0,0,0,0.12);
+            --shadow-4: 0 2px 4px rgba(0,0,0,0.14);
+            --shadow-8: 0 4px 8px rgba(0,0,0,0.14);
+            --shadow-16: 0 8px 16px rgba(0,0,0,0.14);
+            --max-content-width: 1600px;
+            --sidebar-width: 260px;
+            --content-max-width: 860px;
+
+            /* Transition */
+            --transition-fast: 100ms ease;
+            --transition-normal: 200ms ease;
+        }
+
+        /* Dark theme */
+        [data-theme="dark"] {
+            --color-brand-primary: #4ea8e6;
+            --color-brand-primary-hover: #62b5ec;
+            --color-brand-primary-active: #3a9ad9;
+            --color-brand-tint-40: #1a2d3d;
+            --color-brand-tint-30: #1f3a50;
+            --color-neutral-foreground-1: #e0e0e0;
+            --color-neutral-foreground-2: #c8c8c8;
+            --color-neutral-foreground-3: #a0a0a0;
+            --color-neutral-foreground-disabled: #5c5c5c;
+            --color-neutral-background-1: #1b1b1b;
+            --color-neutral-background-2: #202020;
+            --color-neutral-background-3: #272727;
+            --color-neutral-background-4: #303030;
+            --color-neutral-stroke-1: #404040;
+            --color-neutral-stroke-2: #383838;
+            --color-neutral-stroke-3: #333333;
+            --color-success: #54b054;
+            --color-success-bg: #1a331a;
+            --color-warning: #c8c800;
+            --color-warning-bg: #33321a;
+            --color-info: #4ea8e6;
+            --color-info-bg: #1a2d3d;
+            --color-danger: #e87070;
+            --color-danger-bg: #3d1a1a;
+        }
+
+        /* ============================================
+           Reset & Base
+           ============================================ */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-family-base);
+            font-size: var(--font-size-base-300);
+            line-height: var(--line-height-base);
+            color: var(--color-neutral-foreground-1);
+            background-color: var(--color-neutral-background-1);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ============================================
+           Top Navigation Bar (Microsoft Learn style)
+           ============================================ */
+        .top-nav {
+            background-color: var(--color-neutral-background-1);
+            border-bottom: 1px solid var(--color-neutral-stroke-2);
+            height: 48px;
+            display: flex;
+            align-items: center;
+            padding: 0 var(--spacing-xl);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .top-nav__brand {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            text-decoration: none;
+            color: var(--color-neutral-foreground-1);
+            font-size: var(--font-size-base-400);
+            font-weight: var(--font-weight-semibold);
+            margin-right: var(--spacing-xxl);
+        }
+
+        .top-nav__brand svg {
+            width: 108px;
+            height: 24px;
+        }
+
+        .top-nav__separator {
+            width: 1px;
+            height: 24px;
+            background-color: var(--color-neutral-stroke-2);
+            margin: 0 var(--spacing-l);
+        }
+
+        .top-nav__learn {
+            font-size: var(--font-size-base-400);
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-neutral-foreground-1);
+            text-decoration: none;
+        }
+
+        .top-nav__learn:hover {
+            text-decoration: underline;
+        }
+
+        .top-nav__actions {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-m);
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--color-neutral-stroke-1);
+            border-radius: var(--border-radius-small);
+            padding: 6px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-s);
+            font-family: var(--font-family-base);
+            font-size: var(--font-size-base-200);
+            color: var(--color-neutral-foreground-2);
+            transition: background var(--transition-normal), border-color var(--transition-normal);
+        }
+
+        .theme-toggle:hover {
+            background: var(--color-neutral-background-3);
+            border-color: var(--color-neutral-stroke-1);
+        }
+
+        .theme-toggle svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        /* ============================================
+           Sub Navigation / Product Bar
+           ============================================ */
+        .sub-nav {
+            background-color: var(--color-neutral-background-1);
+            border-bottom: 1px solid var(--color-neutral-stroke-3);
+            padding: 0 var(--spacing-xl);
+            display: flex;
+            align-items: center;
+            height: 40px;
+            font-size: var(--font-size-base-200);
+        }
+
+        .sub-nav__links {
+            display: flex;
+            gap: var(--spacing-xl);
+            list-style: none;
+        }
+
+        .sub-nav__links a {
+            color: var(--color-neutral-foreground-2);
+            text-decoration: none;
+            padding: var(--spacing-s) 0;
+            display: inline-block;
+            border-bottom: 2px solid transparent;
+            transition: color var(--transition-normal);
+        }
+
+        .sub-nav__links a:hover {
+            color: var(--color-brand-primary);
+        }
+
+        .sub-nav__links a.active {
+            color: var(--color-brand-primary);
+            border-bottom-color: var(--color-brand-primary);
+            font-weight: var(--font-weight-semibold);
+        }
+
+        /* ============================================
+           Main Layout
+           ============================================ */
+        .page-layout {
+            max-width: var(--max-content-width);
+            margin: 0 auto;
+            display: flex;
+            min-height: calc(100vh - 130px);
+        }
+
+        /* ============================================
+           Sidebar TOC
+           ============================================ */
+        .sidebar {
+            width: var(--sidebar-width);
+            flex-shrink: 0;
+            border-right: 1px solid var(--color-neutral-stroke-3);
+            padding: var(--spacing-xl) 0;
+            position: sticky;
+            top: 88px;
+            height: calc(100vh - 88px);
+            overflow-y: auto;
+            background: var(--color-neutral-background-1);
+        }
+
+        .sidebar__title {
+            font-size: var(--font-size-base-200);
+            font-weight: var(--font-weight-bold);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--color-neutral-foreground-3);
+            padding: 0 var(--spacing-xl) var(--spacing-m);
+        }
+
+        .sidebar__nav {
+            list-style: none;
+        }
+
+        .sidebar__nav li a {
+            display: block;
+            padding: 6px var(--spacing-xl);
+            color: var(--color-neutral-foreground-2);
+            text-decoration: none;
+            font-size: var(--font-size-base-200);
+            border-left: 3px solid transparent;
+            transition: all var(--transition-fast);
+        }
+
+        .sidebar__nav li a:hover {
+            color: var(--color-brand-primary);
+            background: var(--color-neutral-background-3);
+        }
+
+        .sidebar__nav li a.active {
+            color: var(--color-brand-primary);
+            border-left-color: var(--color-brand-primary);
+            font-weight: var(--font-weight-semibold);
+            background: var(--color-brand-tint-40);
+        }
+
+        /* ============================================
+           Content Area
+           ============================================ */
+        .content {
+            flex: 1;
+            min-width: 0;
+            padding: var(--spacing-xl) var(--spacing-xxxl);
+            max-width: var(--content-max-width);
+        }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-s);
+            font-size: var(--font-size-base-200);
+            color: var(--color-neutral-foreground-3);
+            margin-bottom: var(--spacing-xl);
+            flex-wrap: wrap;
+        }
+
+        .breadcrumb a {
+            color: var(--color-neutral-foreground-3);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--color-brand-primary);
+            text-decoration: underline;
+        }
+
+        .breadcrumb__separator {
+            color: var(--color-neutral-foreground-disabled);
+            font-size: 10px;
+        }
+
+        /* Headings */
+        h1 {
+            font-size: var(--font-size-hero);
+            font-weight: var(--font-weight-semibold);
+            line-height: 1.25;
+            margin-bottom: var(--spacing-s);
+            color: var(--color-neutral-foreground-1);
+        }
+
+        .page-meta {
+            font-size: var(--font-size-base-200);
+            color: var(--color-neutral-foreground-3);
+            margin-bottom: var(--spacing-xxl);
+        }
+
+        h2 {
+            font-size: var(--font-size-base-600);
+            font-weight: var(--font-weight-semibold);
+            margin-top: var(--spacing-xxxl);
+            margin-bottom: var(--spacing-l);
+            padding-bottom: var(--spacing-s);
+            border-bottom: 1px solid var(--color-neutral-stroke-3);
+            color: var(--color-neutral-foreground-1);
+        }
+
+        h3 {
+            font-size: var(--font-size-base-500);
+            font-weight: var(--font-weight-semibold);
+            margin-top: var(--spacing-xxl);
+            margin-bottom: var(--spacing-m);
+            color: var(--color-neutral-foreground-1);
+        }
+
+        h4 {
+            font-size: var(--font-size-base-400);
+            font-weight: var(--font-weight-semibold);
+            margin-top: var(--spacing-xl);
+            margin-bottom: var(--spacing-s);
+            color: var(--color-neutral-foreground-1);
+        }
+
+        p {
+            margin-bottom: var(--spacing-l);
+            color: var(--color-neutral-foreground-2);
+        }
+
+        /* ============================================
+           Callout / Alert Boxes (Learn-style)
+           ============================================ */
+        .callout {
+            border-left: 4px solid;
+            border-radius: 0 var(--border-radius-small) var(--border-radius-small) 0;
+            padding: var(--spacing-l) var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+            font-size: var(--font-size-base-300);
+        }
+
+        .callout__title {
+            font-weight: var(--font-weight-semibold);
+            margin-bottom: var(--spacing-xs);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-s);
+        }
+
+        .callout__title svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        .callout--info {
+            border-left-color: var(--color-info);
+            background: var(--color-info-bg);
+        }
+        .callout--info .callout__title { color: var(--color-info); }
+        .callout--info .callout__title svg { fill: var(--color-info); }
+
+        .callout--tip {
+            border-left-color: var(--color-success);
+            background: var(--color-success-bg);
+        }
+        .callout--tip .callout__title { color: var(--color-success); }
+        .callout--tip .callout__title svg { fill: var(--color-success); }
+
+        .callout--warning {
+            border-left-color: var(--color-warning);
+            background: var(--color-warning-bg);
+        }
+        .callout--warning .callout__title { color: var(--color-warning); }
+        .callout--warning .callout__title svg { fill: var(--color-warning); }
+
+        .callout--important {
+            border-left-color: var(--color-danger);
+            background: var(--color-danger-bg);
+        }
+        .callout--important .callout__title { color: var(--color-danger); }
+        .callout--important .callout__title svg { fill: var(--color-danger); }
+
+        /* ============================================
+           Form Controls (Fluent-inspired)
+           ============================================ */
+        .form-section {
+            margin-bottom: var(--spacing-xxl);
+            padding: var(--spacing-xl);
+            background: var(--color-neutral-background-2);
+            border: 1px solid var(--color-neutral-stroke-3);
+            border-radius: var(--border-radius-medium);
+        }
+
+        .form-section__header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-m);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .form-section__icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--border-radius-medium);
+            background: var(--color-brand-tint-30);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .form-section__icon svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--color-brand-primary);
+        }
+
+        .form-section__label-group {
+            flex: 1;
+        }
+
+        .form-section__title {
+            font-size: var(--font-size-base-400);
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-neutral-foreground-1);
+        }
+
+        .form-section__desc {
+            font-size: var(--font-size-base-200);
+            color: var(--color-neutral-foreground-3);
+            margin-top: 2px;
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            font-size: var(--font-size-base-300);
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-neutral-foreground-1);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        label .label-hint {
+            font-weight: var(--font-weight-regular);
+            color: var(--color-neutral-foreground-3);
+            font-size: var(--font-size-base-100);
+            margin-left: var(--spacing-s);
+        }
+
+        input[type="number"],
+        input[type="text"],
+        select {
+            width: 100%;
+            max-width: 400px;
+            padding: 8px 12px;
+            font-family: var(--font-family-base);
+            font-size: var(--font-size-base-300);
+            color: var(--color-neutral-foreground-1);
+            background: var(--color-neutral-background-1);
+            border: 1px solid var(--color-neutral-stroke-1);
+            border-radius: var(--border-radius-small);
+            outline: none;
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="number"]:focus,
+        input[type="text"]:focus,
+        select:focus {
+            border-color: var(--color-brand-primary);
+            box-shadow: 0 0 0 1px var(--color-brand-primary);
+        }
+
+        input[type="number"]:hover,
+        input[type="text"]:hover,
+        select:hover {
+            border-color: var(--color-neutral-foreground-3);
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23616161' d='M2.15 4.65a.5.5 0 0 1 .7 0L6 7.79l3.15-3.14a.5.5 0 0 1 .7.7l-3.5 3.5a.5.5 0 0 1-.7 0l-3.5-3.5a.5.5 0 0 1 0-.7z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+        }
+
+        /* Range slider */
+        input[type="range"] {
+            width: 100%;
+            max-width: 400px;
+            height: 4px;
+            border-radius: 2px;
+            background: var(--color-neutral-stroke-2);
+            outline: none;
+            -webkit-appearance: none;
+            margin-top: var(--spacing-s);
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--color-brand-primary);
+            cursor: pointer;
+            border: 2px solid var(--color-neutral-background-1);
+            box-shadow: var(--shadow-4);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--color-brand-primary);
+            cursor: pointer;
+            border: 2px solid var(--color-neutral-background-1);
+            box-shadow: var(--shadow-4);
+        }
+
+        .range-value {
+            display: inline-block;
+            min-width: 60px;
+            text-align: center;
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-brand-primary);
+            font-size: var(--font-size-base-400);
+            margin-left: var(--spacing-m);
+            vertical-align: middle;
+        }
+
+        .range-row {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-m);
+        }
+
+        /* Radio cards */
+        .radio-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: var(--spacing-m);
+            margin-top: var(--spacing-s);
+        }
+
+        .radio-card {
+            position: relative;
+        }
+
+        .radio-card input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .radio-card__label {
+            display: flex;
+            flex-direction: column;
+            padding: var(--spacing-l);
+            border: 2px solid var(--color-neutral-stroke-2);
+            border-radius: var(--border-radius-medium);
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            background: var(--color-neutral-background-1);
+            min-height: 120px;
+        }
+
+        .radio-card__label:hover {
+            border-color: var(--color-brand-primary);
+            background: var(--color-brand-tint-40);
+        }
+
+        .radio-card input[type="radio"]:checked + .radio-card__label {
+            border-color: var(--color-brand-primary);
+            background: var(--color-brand-tint-40);
+            box-shadow: 0 0 0 1px var(--color-brand-primary);
+        }
+
+        .radio-card input[type="radio"]:focus-visible + .radio-card__label {
+            outline: 2px solid var(--color-brand-primary);
+            outline-offset: 2px;
+        }
+
+        .radio-card__icon {
+            font-size: 28px;
+            margin-bottom: var(--spacing-s);
+        }
+
+        .radio-card__title {
+            font-weight: var(--font-weight-semibold);
+            font-size: var(--font-size-base-300);
+            color: var(--color-neutral-foreground-1);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .radio-card__desc {
+            font-size: var(--font-size-base-100);
+            color: var(--color-neutral-foreground-3);
+            line-height: 1.4;
+        }
+
+        /* Checkbox control */
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-m);
+            margin-top: var(--spacing-s);
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--spacing-m);
+            cursor: pointer;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-top: 2px;
+            accent-color: var(--color-brand-primary);
+            cursor: pointer;
+        }
+
+        .checkbox-item__text {
+            font-size: var(--font-size-base-300);
+            color: var(--color-neutral-foreground-2);
+        }
+
+        .checkbox-item__text strong {
+            color: var(--color-neutral-foreground-1);
+        }
+
+        /* ============================================
+           Primary CTA Button
+           ============================================ */
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-s);
+            padding: 10px 24px;
+            font-family: var(--font-family-base);
+            font-size: var(--font-size-base-300);
+            font-weight: var(--font-weight-semibold);
+            color: #ffffff;
+            background: var(--color-brand-primary);
+            border: none;
+            border-radius: var(--border-radius-small);
+            cursor: pointer;
+            transition: background var(--transition-normal);
+        }
+
+        .btn-primary:hover {
+            background: var(--color-brand-primary-hover);
+        }
+
+        .btn-primary:active {
+            background: var(--color-brand-primary-active);
+        }
+
+        .btn-primary svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-s);
+            padding: 10px 24px;
+            font-family: var(--font-family-base);
+            font-size: var(--font-size-base-300);
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-neutral-foreground-1);
+            background: var(--color-neutral-background-1);
+            border: 1px solid var(--color-neutral-stroke-1);
+            border-radius: var(--border-radius-small);
+            cursor: pointer;
+            transition: background var(--transition-normal);
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-neutral-background-3);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: var(--spacing-m);
+            margin-top: var(--spacing-xl);
+            flex-wrap: wrap;
+        }
+
+        /* ============================================
+           Results Section
+           ============================================ */
+        #results {
+            display: none;
+        }
+
+        #results.visible {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .results-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-l);
+            margin-bottom: var(--spacing-xxl);
+        }
+
+        .result-card {
+            background: var(--color-neutral-background-2);
+            border: 1px solid var(--color-neutral-stroke-3);
+            border-radius: var(--border-radius-medium);
+            padding: var(--spacing-xl);
+            text-align: center;
+            transition: box-shadow var(--transition-normal);
+        }
+
+        .result-card:hover {
+            box-shadow: var(--shadow-8);
+        }
+
+        .result-card__value {
+            font-size: 36px;
+            font-weight: var(--font-weight-bold);
+            color: var(--color-brand-primary);
+            line-height: 1.2;
+        }
+
+        .result-card__label {
+            font-size: var(--font-size-base-200);
+            color: var(--color-neutral-foreground-3);
+            margin-top: var(--spacing-xs);
+        }
+
+        .result-card__sub {
+            font-size: var(--font-size-base-100);
+            color: var(--color-neutral-foreground-disabled);
+            margin-top: var(--spacing-xs);
+        }
+
+        /* Recommendation table */
+        .rec-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: var(--spacing-xxl);
+            font-size: var(--font-size-base-300);
+        }
+
+        .rec-table thead {
+            background: var(--color-neutral-background-3);
+        }
+
+        .rec-table th {
+            padding: var(--spacing-m) var(--spacing-l);
+            text-align: left;
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-neutral-foreground-1);
+            border-bottom: 2px solid var(--color-neutral-stroke-2);
+            font-size: var(--font-size-base-200);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .rec-table td {
+            padding: var(--spacing-m) var(--spacing-l);
+            border-bottom: 1px solid var(--color-neutral-stroke-3);
+            color: var(--color-neutral-foreground-2);
+        }
+
+        .rec-table tbody tr:hover {
+            background: var(--color-neutral-background-2);
+        }
+
+        .rec-table .highlight {
+            background: var(--color-brand-tint-40);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: var(--font-size-base-100);
+            font-weight: var(--font-weight-semibold);
+        }
+
+        .badge--recommended {
+            background: var(--color-success-bg);
+            color: var(--color-success);
+        }
+
+        .badge--optional {
+            background: var(--color-info-bg);
+            color: var(--color-info);
+        }
+
+        /* Cost breakdown */
+        .cost-breakdown {
+            background: var(--color-neutral-background-2);
+            border: 1px solid var(--color-neutral-stroke-3);
+            border-radius: var(--border-radius-medium);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-xxl);
+        }
+
+        .cost-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-m) 0;
+            border-bottom: 1px solid var(--color-neutral-stroke-3);
+        }
+
+        .cost-row:last-child {
+            border-bottom: none;
+            font-weight: var(--font-weight-bold);
+            font-size: var(--font-size-base-400);
+            padding-top: var(--spacing-l);
+            border-top: 2px solid var(--color-neutral-stroke-1);
+        }
+
+        .cost-row__label {
+            color: var(--color-neutral-foreground-2);
+        }
+
+        .cost-row__value {
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-neutral-foreground-1);
+        }
+
+        /* ============================================
+           Progress Steps
+           ============================================ */
+        .progress-steps {
+            display: flex;
+            align-items: center;
+            margin-bottom: var(--spacing-xxl);
+            padding: var(--spacing-l) 0;
+        }
+
+        .progress-step {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-s);
+            font-size: var(--font-size-base-200);
+            color: var(--color-neutral-foreground-disabled);
+        }
+
+        .progress-step.active {
+            color: var(--color-brand-primary);
+            font-weight: var(--font-weight-semibold);
+        }
+
+        .progress-step.completed {
+            color: var(--color-success);
+        }
+
+        .progress-step__number {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-base-200);
+            font-weight: var(--font-weight-semibold);
+            border: 2px solid var(--color-neutral-stroke-2);
+            background: var(--color-neutral-background-1);
+        }
+
+        .progress-step.active .progress-step__number {
+            border-color: var(--color-brand-primary);
+            background: var(--color-brand-primary);
+            color: #fff;
+        }
+
+        .progress-step.completed .progress-step__number {
+            border-color: var(--color-success);
+            background: var(--color-success);
+            color: #fff;
+        }
+
+        .progress-step__connector {
+            width: 48px;
+            height: 2px;
+            background: var(--color-neutral-stroke-2);
+            margin: 0 var(--spacing-m);
+        }
+
+        .progress-step.completed + .progress-step__connector,
+        .progress-step.completed ~ .progress-step__connector {
+            background: var(--color-success);
+        }
+
+        /* ============================================
+           Footer
+           ============================================ */
+        .site-footer {
+            border-top: 1px solid var(--color-neutral-stroke-3);
+            padding: var(--spacing-xxl) var(--spacing-xl);
+            font-size: var(--font-size-base-100);
+            color: var(--color-neutral-foreground-3);
+            text-align: center;
+            background: var(--color-neutral-background-2);
+        }
+
+        .site-footer a {
+            color: var(--color-neutral-foreground-3);
+            text-decoration: none;
+            margin: 0 var(--spacing-m);
+        }
+
+        .site-footer a:hover {
+            color: var(--color-brand-primary);
+            text-decoration: underline;
+        }
+
+        .site-footer__links {
+            margin-bottom: var(--spacing-m);
+        }
+
+        /* ============================================
+           Responsive
+           ============================================ */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: var(--spacing-s);
+        }
+
+        .mobile-menu-toggle svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--color-neutral-foreground-1);
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                display: none;
+            }
+
+            .sidebar.mobile-open {
+                display: block;
+                position: fixed;
+                left: 0;
+                top: 88px;
+                z-index: 90;
+                box-shadow: var(--shadow-16);
+                width: 280px;
+                background: var(--color-neutral-background-1);
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .content {
+                padding: var(--spacing-xl);
+            }
+
+            .radio-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .results-summary {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .progress-steps {
+                flex-wrap: wrap;
+                gap: var(--spacing-s);
+            }
+
+            .progress-step__connector {
+                display: none;
+            }
+        }
+
+        @media (max-width: 640px) {
+            h1 { font-size: var(--font-size-base-600); }
+            h2 { font-size: var(--font-size-base-500); }
+            
+            .results-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .rec-table {
+                font-size: var(--font-size-base-100);
+            }
+
+            .rec-table th,
+            .rec-table td {
+                padding: var(--spacing-s);
+            }
+        }
+
+        /* ============================================
+           Utility classes
+           ============================================ */
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            border: 0;
+        }
+
+        .mt-0 { margin-top: 0; }
+        .mb-0 { margin-bottom: 0; }
+        .text-muted { color: var(--color-neutral-foreground-3); }
+        .text-brand { color: var(--color-brand-primary); }
+        .fw-semibold { font-weight: var(--font-weight-semibold); }
+
+        /* Smooth scroll anchor offset */
+        section[id] {
+            scroll-margin-top: 100px;
+        }
+
+        /* Print styles */
+        @media print {
+            .top-nav, .sub-nav, .sidebar, .site-footer, .btn-group, .theme-toggle, .mobile-menu-toggle {
+                display: none !important;
+            }
+            .page-layout { display: block; }
+            .content { max-width: 100%; padding: 0; }
+            #results { display: block !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==========================================
+         Top Navigation
+         ========================================== -->
+    <nav class="top-nav" role="navigation" aria-label="Main navigation">
+        <a href="https://microsoft.com" class="top-nav__brand" aria-label="Microsoft">
+            <svg viewBox="0 0 108 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path fill="currentColor" d="M44.836 4.6v14.8h-2.271V7.583L38.202 19.4h-1.6l-4.363-11.817V19.4h-2.1V4.6h2.99l4.1 11.4 4.1-11.4h3.507zm3.6 2.4a1.26 1.26 0 0 1-.93-.38 1.26 1.26 0 0 1-.38-.93 1.26 1.26 0 0 1 .38-.93 1.31 1.31 0 0 1 1.86 0 1.26 1.26 0 0 1 .38.93 1.26 1.26 0 0 1-.38.93 1.26 1.26 0 0 1-.93.38zm1.07 12.4h-2.14V9h2.14v10zm7.17-10.2a5.42 5.42 0 0 1 2.41.51 3.65 3.65 0 0 1 1.59 1.53 4.89 4.89 0 0 1 .56 2.43v6.27h-2.05v-1.47a3.07 3.07 0 0 1-1.25 1.22 4.17 4.17 0 0 1-2.05.47 4.28 4.28 0 0 1-1.83-.38 3 3 0 0 1-1.24-1.06 2.75 2.75 0 0 1-.44-1.55 2.6 2.6 0 0 1 .51-1.62 3.13 3.13 0 0 1 1.55-1.01 7.41 7.41 0 0 1 2.71-.38h1.9v-.42a2.33 2.33 0 0 0-.66-1.78 2.61 2.61 0 0 0-1.87-.62 5.38 5.38 0 0 0-1.63.26 4.06 4.06 0 0 0-1.37.71l-.82-1.53a5.09 5.09 0 0 1 1.78-.89 7.12 7.12 0 0 1 2.1-.32zm-.25 8.79a3.01 3.01 0 0 0 1.49-.38 2.27 2.27 0 0 0 .98-1.12v-1.33h-1.81c-1.71 0-2.57.53-2.57 1.59a1.41 1.41 0 0 0 .54 1.14 2.22 2.22 0 0 0 1.37.1zm10.13-8.79a3.85 3.85 0 0 1 2.91 1.11 4.42 4.42 0 0 1 1.05 3.17v6.12h-2.14v-5.82a3 3 0 0 0-.64-2.11 2.34 2.34 0 0 0-1.79-.69 2.75 2.75 0 0 0-2.11.84 3.27 3.27 0 0 0-.78 2.32v5.46h-2.14V9h2.05v1.5a3.47 3.47 0 0 1 1.35-1.2 4.21 4.21 0 0 1 2.24-.7zm10.53 10.38a5.89 5.89 0 0 1-2.82-.65 4.73 4.73 0 0 1-1.9-1.82 5.17 5.17 0 0 1-.68-2.65 5.17 5.17 0 0 1 .68-2.65 4.73 4.73 0 0 1 1.9-1.82 5.89 5.89 0 0 1 2.82-.65 5.25 5.25 0 0 1 2.36.51 3.82 3.82 0 0 1 1.59 1.46l-1.42 1.1a3.07 3.07 0 0 0-1.14-1.04 3.22 3.22 0 0 0-1.48-.33 3.36 3.36 0 0 0-1.73.45 3.1 3.1 0 0 0-1.18 1.26 4.01 4.01 0 0 0-.42 1.86 4.01 4.01 0 0 0 .42 1.86 3.1 3.1 0 0 0 1.18 1.26 3.36 3.36 0 0 0 1.73.45 3.22 3.22 0 0 0 1.48-.33 3.07 3.07 0 0 0 1.14-1.04l1.42 1.1a3.82 3.82 0 0 1-1.59 1.46 5.25 5.25 0 0 1-2.36.51zm10.95-10.38a5.42 5.42 0 0 1 2.41.51 3.65 3.65 0 0 1 1.59 1.53 4.89 4.89 0 0 1 .56 2.43v6.27h-2.05v-1.47a3.07 3.07 0 0 1-1.25 1.22 4.17 4.17 0 0 1-2.05.47 4.28 4.28 0 0 1-1.83-.38 3 3 0 0 1-1.24-1.06 2.75 2.75 0 0 1-.44-1.55 2.6 2.6 0 0 1 .51-1.62 3.13 3.13 0 0 1 1.55-1.01 7.41 7.41 0 0 1 2.71-.38h1.9v-.42a2.33 2.33 0 0 0-.66-1.78 2.61 2.61 0 0 0-1.87-.62 5.38 5.38 0 0 0-1.63.26 4.06 4.06 0 0 0-1.37.71l-.82-1.53a5.09 5.09 0 0 1 1.78-.89 7.12 7.12 0 0 1 2.1-.32zm-.25 8.79a3.01 3.01 0 0 0 1.49-.38 2.27 2.27 0 0 0 .98-1.12v-1.33h-1.81c-1.71 0-2.57.53-2.57 1.59a1.41 1.41 0 0 0 .54 1.14 2.22 2.22 0 0 0 1.37.1zm10.13-8.79a3.85 3.85 0 0 1 2.91 1.11 4.42 4.42 0 0 1 1.05 3.17v6.12h-2.14v-5.82a3 3 0 0 0-.64-2.11 2.34 2.34 0 0 0-1.79-.69 2.75 2.75 0 0 0-2.11.84 3.27 3.27 0 0 0-.78 2.32v5.46h-2.14V9h2.05v1.5a3.47 3.47 0 0 1 1.35-1.2 4.21 4.21 0 0 1 2.24-.7z"/>
+                <path fill="#f25022" d="M0 0h10.931v10.931H0z"/>
+                <path fill="#7fba00" d="M12.069 0H23v10.931H12.069z"/>
+                <path fill="#00a4ef" d="M0 12.069h10.931V23H0z"/>
+                <path fill="#ffb900" d="M12.069 12.069H23V23H12.069z"/>
+            </svg>
+        </a>
+        <div class="top-nav__separator"></div>
+        <a href="#" class="top-nav__learn">Learn</a>
+
+        <div class="top-nav__actions">
+            <button class="mobile-menu-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation menu">
+                <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+            </button>
+            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
+                <svg class="icon-light" viewBox="0 0 20 20"><path d="M10 2a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V3a1 1 0 0 1 1-1zm4.22 2.78a1 1 0 0 1 1.41 0l.71.71a1 1 0 1 1-1.41 1.41l-.71-.71a1 1 0 0 1 0-1.41zM17 10a1 1 0 0 1 1-1h1a1 1 0 1 1 0 2h-1a1 1 0 0 1-1-1zm-2.78 4.22a1 1 0 0 1 0 1.41l-.71.71a1 1 0 1 1-1.41-1.41l.71-.71a1 1 0 0 1 1.41 0zM10 16a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1zm-4.22-1.78a1 1 0 0 1 0 1.41l-.71.71a1 1 0 1 1-1.41-1.41l.71-.71a1 1 0 0 1 1.41 0zM2 10a1 1 0 0 1 1-1h1a1 1 0 0 1 0 2H3a1 1 0 0 1-1-1zm2.78-4.22a1 1 0 0 1 1.41 0l.71.71A1 1 0 0 1 5.49 7.9l-.71-.71a1 1 0 0 1 0-1.41zM10 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg>
+                <svg class="icon-dark" style="display:none" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 0 1 6.707 2.707a8.003 8.003 0 1 0 10.586 10.586z"/></svg>
+                <span class="theme-label">Theme</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Sub Nav -->
+    <div class="sub-nav" role="navigation" aria-label="Product navigation">
+        <ul class="sub-nav__links">
+            <li><a href="#" class="active">Sizing Tool</a></li>
+            <li><a href="https://learn.microsoft.com/en-us/azure/virtual-desktop/overview" target="_blank">Documentation</a></li>
+            <li><a href="https://learn.microsoft.com/en-us/training/" target="_blank">Training</a></li>
+            <li><a href="https://azure.microsoft.com/en-us/pricing/calculator/" target="_blank">Pricing</a></li>
+        </ul>
+    </div>
+
+    <!-- ==========================================
+         Page Layout
+         ========================================== -->
+    <div class="page-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar" role="navigation" aria-label="Table of contents">
+            <div class="sidebar__title">On this page</div>
+            <ul class="sidebar__nav" id="tocNav">
+                <li><a href="#overview" class="active">Overview</a></li>
+                <li><a href="#user-config">User configuration</a></li>
+                <li><a href="#workload-profile">Workload profile</a></li>
+                <li><a href="#graphics-requirements">Graphics requirements</a></li>
+                <li><a href="#storage-config">Storage &amp; redundancy</a></li>
+                <li><a href="#additional-options">Additional options</a></li>
+                <li><a href="#results-section">Sizing results</a></li>
+                <li><a href="#vm-recommendations">VM recommendations</a></li>
+                <li><a href="#cost-estimate">Cost estimate</a></li>
+                <li><a href="#next-steps">Next steps</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content" id="main-content" role="main">
+            <!-- Breadcrumb -->
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+                <a href="https://learn.microsoft.com">Learn</a>
+                <span class="breadcrumb__separator">&#9656;</span>
+                <a href="#">Azure</a>
+                <span class="breadcrumb__separator">&#9656;</span>
+                <a href="#">Virtual Desktop</a>
+                <span class="breadcrumb__separator">&#9656;</span>
+                <span>Infrastructure Sizing Tool</span>
+            </nav>
+
+            <!-- Title -->
+            <section id="overview">
+                <h1>Infrastructure Sizing Tool</h1>
+                <p class="page-meta">Last updated: 02/18/2026 &nbsp;&bull;&nbsp; Interactive tool</p>
+
+                <p>Use this interactive sizing tool to determine the optimal infrastructure configuration for your deployment. Configure your user count, workload profiles, graphics requirements, and storage preferences to receive tailored VM recommendations and estimated costs.</p>
+
+                <div class="callout callout--info">
+                    <div class="callout__title">
+                        <svg viewBox="0 0 16 16"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 2.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm1.25 8.5h-2.5v-1h.75V8h-.75V7h1.75v4h.75v1z"/></svg>
+                        Note
+                    </div>
+                    <p class="mb-0">This tool provides estimates based on general best practices and Azure VM sizing guidance. Actual requirements may vary based on your specific applications and usage patterns. We recommend validating with a proof-of-concept deployment before production rollout.</p>
+                </div>
+
+                <!-- Progress Steps -->
+                <div class="progress-steps" aria-label="Configuration progress">
+                    <div class="progress-step active" data-step="1">
+                        <div class="progress-step__number">1</div>
+                        <span>Users</span>
+                    </div>
+                    <div class="progress-step__connector"></div>
+                    <div class="progress-step" data-step="2">
+                        <div class="progress-step__number">2</div>
+                        <span>Workload</span>
+                    </div>
+                    <div class="progress-step__connector"></div>
+                    <div class="progress-step" data-step="3">
+                        <div class="progress-step__number">3</div>
+                        <span>Graphics</span>
+                    </div>
+                    <div class="progress-step__connector"></div>
+                    <div class="progress-step" data-step="4">
+                        <div class="progress-step__number">4</div>
+                        <span>Storage</span>
+                    </div>
+                    <div class="progress-step__connector"></div>
+                    <div class="progress-step" data-step="5">
+                        <div class="progress-step__number">5</div>
+                        <span>Results</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================
+                 Section 1: User Configuration
+                 ========================================== -->
+            <section id="user-config">
+                <h2>User configuration</h2>
+                <p>Define the number of concurrent users and the session type for your deployment. These values directly impact the number and size of virtual machines required.</p>
+
+                <div class="form-section">
+                    <div class="form-section__header">
+                        <div class="form-section__icon">
+                            <svg viewBox="0 0 20 20"><path d="M10 2a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM4 14.5C4 12.015 6.015 10 8.5 10h3c2.485 0 4.5 2.015 4.5 4.5v.5c0 1.971-3.134 3-6 3s-6-1.029-6-3v-.5z"/></svg>
+                        </div>
+                        <div class="form-section__label-group">
+                            <div class="form-section__title">Users &amp; Sessions</div>
+                            <div class="form-section__desc">Configure user counts and session preferences</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="concurrentUsers">
+                            Number of concurrent users
+                            <span class="label-hint">(Required)</span>
+                        </label>
+                        <div class="range-row">
+                            <input type="range" id="concurrentUsers" min="10" max="10000" value="100" step="10" 
+                                   oninput="updateRangeDisplay(this, 'concurrentUsersVal')" onchange="updateProgress()">
+                            <span class="range-value" id="concurrentUsersVal">100</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="totalUsers">
+                            Total named users
+                            <span class="label-hint">(Total licensed users, typically 1.5-3x concurrent)</span>
+                        </label>
+                        <input type="number" id="totalUsers" value="300" min="10" max="50000" placeholder="e.g. 300" onchange="updateProgress()">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Session type</label>
+                        <div class="radio-cards">
+                            <div class="radio-card">
+                                <input type="radio" name="sessionType" id="multiSession" value="multi" checked onchange="updateProgress()">
+                                <label class="radio-card__label" for="multiSession">
+                                    <span class="radio-card__icon">&#128101;</span>
+                                    <span class="radio-card__title">Multi-session</span>
+                                    <span class="radio-card__desc">Multiple users share VMs. Best for task workers and general productivity. Lower cost per user.</span>
+                                </label>
+                            </div>
+                            <div class="radio-card">
+                                <input type="radio" name="sessionType" id="singleSession" value="single" onchange="updateProgress()">
+                                <label class="radio-card__label" for="singleSession">
+                                    <span class="radio-card__icon">&#128100;</span>
+                                    <span class="radio-card__title">Single-session</span>
+                                    <span class="radio-card__desc">Dedicated VM per user. Best for power users, developers, or compliance requirements.</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="peakHours">Average daily usage hours per user</label>
+                        <div class="range-row">
+                            <input type="range" id="peakHours" min="1" max="24" value="8" step="1" 
+                                   oninput="updateRangeDisplay(this, 'peakHoursVal', ' hrs')" onchange="updateProgress()">
+                            <span class="range-value" id="peakHoursVal">8 hrs</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================
+                 Section 2: Workload Profile
+                 ========================================== -->
+            <section id="workload-profile">
+                <h2>Workload profile</h2>
+                <p>Select the workload profile that best matches your users' daily activities. This determines the CPU and memory allocated per user session.</p>
+
+                <div class="form-section">
+                    <div class="form-section__header">
+                        <div class="form-section__icon">
+                            <svg viewBox="0 0 20 20"><path d="M3 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1H5zm-2 13a1 1 0 1 0 0 2h14a1 1 0 1 0 0-2H3z"/></svg>
+                        </div>
+                        <div class="form-section__label-group">
+                            <div class="form-section__title">Workload Type</div>
+                            <div class="form-section__desc">Select the primary workload for your user base</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Primary workload</label>
+                        <div class="radio-cards">
+                            <div class="radio-card">
+                                <input type="radio" name="workloadType" id="wlLight" value="light" onchange="updateProgress()">
+                                <label class="radio-card__label" for="wlLight">
+                                    <span class="radio-card__icon">&#128221;</span>
+                                    <span class="radio-card__title">Light</span>
+                                    <span class="radio-card__desc">Web browsing, email, simple document editing. ~1 vCPU, 2 GB RAM per user.</span>
+                                </label>
+                            </div>
+                            <div class="radio-card">
+                                <input type="radio" name="workloadType" id="wlMedium" value="medium" checked onchange="updateProgress()">
+                                <label class="radio-card__label" for="wlMedium">
+                                    <span class="radio-card__icon">&#128188;</span>
+                                    <span class="radio-card__title">Medium</span>
+                                    <span class="radio-card__desc">Office apps, Teams, multiple browser tabs. ~2 vCPUs, 4 GB RAM per user.</span>
+                                </label>
+                            </div>
+                            <div class="radio-card">
+                                <input type="radio" name="workloadType" id="wlHeavy" value="heavy" onchange="updateProgress()">
+                                <label class="radio-card__label" for="wlHeavy">
+                                    <span class="radio-card__icon">&#9889;</span>
+                                    <span class="radio-card__title">Heavy</span>
+                                    <span class="radio-card__desc">Data analysis, compiling code, heavy multitasking. ~4 vCPUs, 8 GB RAM per user.</span>
+                                </label>
+                            </div>
+                            <div class="radio-card">
+                                <input type="radio" name="workloadType" id="wlPower" value="power" onchange="updateProgress()">
+                                <label class="radio-card__label" for="wlPower">
+                                    <span class="radio-card__icon">&#128640;</span>
+                                    <span class="radio-card__title">Power</span>
+                                    <span class="radio-card__desc">Software development, large datasets, CPU-intensive tasks. ~8 vCPUs, 16 GB RAM per user.</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="callout callout--tip">
+                    <div class="callout__title">
+                        <svg viewBox="0 0 16 16"><path d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm11.28-1.78a.75.75 0 0 1 0 1.06l-4 4a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06L6.75 9.69l3.47-3.47a.75.75 0 0 1 1.06 0z"/></svg>
+                        Tip
+                    </div>
+                    <p class="mb-0">For mixed workload environments, select the profile that matches your <strong>heaviest user group</strong>, then adjust user counts accordingly. You can create multiple host pools with different VM sizes to optimize cost.</p>
+                </div>
+            </section>
+
+            <!-- ==========================================
+                 Section 3: Graphics Requirements
+                 ========================================== -->
+            <section id="graphics-requirements">
+                <h2>Graphics requirements</h2>
+                <p>If your users require GPU-accelerated rendering (such as CAD, 3D modeling, video editing, or rich data visualization), select the appropriate GPU tier below.</p>
+
+                <div class="form-section">
+                    <div class="form-section__header">
+                        <div class="form-section__icon">
+                            <svg viewBox="0 0 20 20"><path d="M4 4a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H4zm0 2h12v8H4V6zm2 1.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-2z"/></svg>
+                        </div>
+                        <div class="form-section__label-group">
+                            <div class="form-section__title">GPU Configuration</div>
+                            <div class="form-section__desc">Select graphics acceleration requirements</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>GPU requirement</label>
+                        <div class="radio-cards">
+                            <div class="radio-card">
+                                <input type="radio" name="gpuType" id="gpuNone" value="none" checked onchange="updateProgress()">
+                                <label class="radio-card__label" for="gpuNone">
+                                    <span class="radio-card__icon">&#10060;</span>
+                                    <span class="radio-card__title">No GPU</span>
+                                    <span class="radio-card__desc">Standard office productivity, web apps, and general business applications.</span>
+                                </label>
+                            </div>
+                            <div class="radio-card">
+                                <input type="radio" name="gpuType" id="gpuLight" value="light" onchange="updateProgress()">
+                                <label class="radio-card__label" for="gpuLight">
+                                    <span class="radio-card__icon">&#127912;</span>
+                                    <span class="radio-card__title">Light GPU</span>
+                                    <span class="radio-card__desc">Basic graphics acceleration, PowerBI visualizations, light image editing. NVv3/NVadsA10v5 series.</span>
+                                </label>
+                            </div>
+                            <div class="radio-card">
+                                <input type="radio" name="gpuType" id="gpuMedium" value="medium" onchange="updateProgress()">
+                                <label class="radio-card__label" for="gpuMedium">
+                                    <span class="radio-card__icon">&#127916;</span>
+                                    <span class="radio-card__title">Medium GPU</span>
+                                    <span class="radio-card__desc">CAD, 3D modeling, video editing, ArcGIS. NVadsA10v5/NCasT4_v3 series.</span>
+                                </label>
+                            </div>
+                            <div class="radio-card">
+                                <input type="radio" name="gpuType" id="gpuHeavy" value="heavy" onchange="updateProgress()">
+                                <label class="radio-card__label" for="gpuHeavy">
+                                    <span class="radio-card__icon">&#128302;</span>
+                                    <span class="radio-card__title">Heavy GPU</span>
+                                    <span class="radio-card__desc">Real-time rendering, simulation, ML inference. NCv3/NVadsA10v5 series with dedicated GPU.</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="monitorCount">Number of monitors per user</label>
+                        <select id="monitorCount" onchange="updateProgress()">
+                            <option value="1">1 monitor</option>
+                            <option value="2" selected>2 monitors</option>
+                            <option value="3">3 monitors</option>
+                            <option value="4">4 monitors</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="resolution">Maximum display resolution</label>
+                        <select id="resolution" onchange="updateProgress()">
+                            <option value="1080p" selected>1920 x 1080 (Full HD)</option>
+                            <option value="1440p">2560 x 1440 (QHD)</option>
+                            <option value="4k">3840 x 2160 (4K UHD)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="callout callout--warning">
+                    <div class="callout__title">
+                        <svg viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0l-6.857 11.667c-.457.778.092 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>
+                        Important
+                    </div>
+                    <p class="mb-0">GPU-enabled VMs have significantly higher costs. For multi-session deployments with GPU, the number of users per VM is limited by GPU memory. Ensure you validate GPU requirements with a proof-of-concept before committing to production.</p>
+                </div>
+            </section>
+
+            <!-- ==========================================
+                 Section 4: Storage
+                 ========================================== -->
+            <section id="storage-config">
+                <h2>Storage &amp; redundancy</h2>
+                <p>Configure OS disk type and user profile storage. FSLogix profile containers are recommended for multi-session deployments to provide a persistent user experience.</p>
+
+                <div class="form-section">
+                    <div class="form-section__header">
+                        <div class="form-section__icon">
+                            <svg viewBox="0 0 20 20"><path d="M4 3a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H4zm0 2h12v2H4V5zm0 6a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2H4zm0 2h12v2H4v-2zm10-1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>
+                        </div>
+                        <div class="form-section__label-group">
+                            <div class="form-section__title">Storage Configuration</div>
+                            <div class="form-section__desc">OS disks and user profile storage</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="osDiskType">OS disk type</label>
+                        <select id="osDiskType" onchange="updateProgress()">
+                            <option value="standard-ssd" selected>Standard SSD (recommended for most workloads)</option>
+                            <option value="premium-ssd">Premium SSD (low latency, high IOPS)</option>
+                            <option value="standard-hdd">Standard HDD (lowest cost, dev/test only)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="profileStorage">User profile storage (FSLogix)</label>
+                        <select id="profileStorage" onchange="updateProgress()">
+                            <option value="azure-files-standard">Azure Files — Standard (SMB, cost-effective)</option>
+                            <option value="azure-files-premium" selected>Azure Files — Premium (low latency, recommended)</option>
+                            <option value="netapp">Azure NetApp Files (enterprise-grade)</option>
+                            <option value="none">No profile storage (single-session only)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="profileSize">Average profile size per user</label>
+                        <div class="range-row">
+                            <input type="range" id="profileSize" min="5" max="100" value="30" step="5" 
+                                   oninput="updateRangeDisplay(this, 'profileSizeVal', ' GB')" onchange="updateProgress()">
+                            <span class="range-value" id="profileSizeVal">30 GB</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="redundancy">Storage redundancy</label>
+                        <select id="redundancy" onchange="updateProgress()">
+                            <option value="lrs" selected>Locally-redundant storage (LRS)</option>
+                            <option value="zrs">Zone-redundant storage (ZRS)</option>
+                            <option value="grs">Geo-redundant storage (GRS)</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================
+                 Section 5: Additional Options
+                 ========================================== -->
+            <section id="additional-options">
+                <h2>Additional options</h2>
+                <p>Configure optional features and high-availability settings for your deployment.</p>
+
+                <div class="form-section">
+                    <div class="form-section__header">
+                        <div class="form-section__icon">
+                            <svg viewBox="0 0 20 20"><path d="M11.49 3.17a1.25 1.25 0 0 0-2.98 0L7.89 7.56l-4.55.37a1.25 1.25 0 0 0-.71 2.19l3.45 2.89-.99 4.44a1.25 1.25 0 0 0 1.86 1.36L10 16.52l4.05 2.29a1.25 1.25 0 0 0 1.86-1.36l-.99-4.44 3.45-2.89a1.25 1.25 0 0 0-.71-2.19l-4.55-.37-.62-4.39z"/></svg>
+                        </div>
+                        <div class="form-section__label-group">
+                            <div class="form-section__title">Features &amp; Availability</div>
+                            <div class="form-section__desc">Additional deployment configuration</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="region">Azure region</label>
+                        <select id="region" onchange="updateProgress()">
+                            <option value="eastus" selected>East US</option>
+                            <option value="westus2">West US 2</option>
+                            <option value="westeurope">West Europe</option>
+                            <option value="northeurope">North Europe</option>
+                            <option value="uksouth">UK South</option>
+                            <option value="australiaeast">Australia East</option>
+                            <option value="southeastasia">Southeast Asia</option>
+                            <option value="japaneast">Japan East</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Additional features</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="featureHA" onchange="updateProgress()">
+                                <span class="checkbox-item__text"><strong>High availability</strong> — Deploy across availability zones for 99.99% SLA</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="featureBackup" checked onchange="updateProgress()">
+                                <span class="checkbox-item__text"><strong>Azure Backup</strong> — Automated backup for session host VMs</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="featureMonitor" checked onchange="updateProgress()">
+                                <span class="checkbox-item__text"><strong>Azure Monitor</strong> — Insights and diagnostics for AVD environment</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="featureDefender" onchange="updateProgress()">
+                                <span class="checkbox-item__text"><strong>Microsoft Defender for Cloud</strong> — Advanced threat protection for session hosts</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="featureAutoscale" onchange="updateProgress()">
+                                <span class="checkbox-item__text"><strong>Autoscale</strong> — Automatically adjust session host capacity based on demand</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calculate Button -->
+                <div class="btn-group">
+                    <button class="btn-primary" onclick="calculateSizing()">
+                        <svg viewBox="0 0 16 16"><path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm2 .5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zm4 0v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5zm4 0v1a.5.5 0 0 0 .5.5h.5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-.5a.5.5 0 0 0-.5.5z"/></svg>
+                        Calculate sizing
+                    </button>
+                    <button class="btn-secondary" onclick="resetForm()">
+                        Reset to defaults
+                    </button>
+                </div>
+            </section>
+
+            <!-- ==========================================
+                 Results Section (hidden until calculate)
+                 ========================================== -->
+            <div id="results">
+                <section id="results-section">
+                    <h2>Sizing results</h2>
+                    <p>Based on your configuration, here are the recommended infrastructure specifications for your deployment.</p>
+
+                    <div class="results-summary" id="resultsSummary">
+                        <!-- Populated by JS -->
+                    </div>
+                </section>
+
+                <section id="vm-recommendations">
+                    <h3>VM recommendations</h3>
+                    <p>The following table shows recommended Azure VM SKUs based on your workload profile and user configuration.</p>
+
+                    <div style="overflow-x:auto">
+                        <table class="rec-table" id="vmTable">
+                            <thead>
+                                <tr>
+                                    <th>VM Series</th>
+                                    <th>SKU</th>
+                                    <th>vCPUs</th>
+                                    <th>Memory</th>
+                                    <th>Users/VM</th>
+                                    <th>VMs Required</th>
+                                    <th>Est. Cost/month</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="vmTableBody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="cost-estimate">
+                    <h3>Cost estimate</h3>
+                    <p>Estimated monthly cost breakdown based on the recommended configuration. Prices shown are pay-as-you-go estimates for the selected Azure region.</p>
+
+                    <div class="cost-breakdown" id="costBreakdown">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <div class="callout callout--important">
+                        <div class="callout__title">
+                            <svg viewBox="0 0 16 16"><path d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-4a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 8 4zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/></svg>
+                            Important
+                        </div>
+                        <p class="mb-0">Cost estimates are approximate and based on publicly available Azure pricing. Actual costs may vary based on reserved instances, enterprise agreements, hybrid benefit, and other factors. Use the <a href="https://azure.microsoft.com/en-us/pricing/calculator/" target="_blank" style="color: inherit; text-decoration: underline;">Azure Pricing Calculator</a> for precise quotes.</p>
+                    </div>
+                </section>
+
+                <section id="next-steps">
+                    <h2>Next steps</h2>
+                    <p>Now that you have your sizing recommendations, consider the following next steps to proceed with your deployment:</p>
+                    <ul style="padding-left: var(--spacing-xl); margin-bottom: var(--spacing-xl); color: var(--color-neutral-foreground-2);">
+                        <li style="margin-bottom: var(--spacing-s);"><a href="https://learn.microsoft.com/en-us/azure/virtual-desktop/prerequisites" target="_blank" style="color: var(--color-brand-primary);">Review the complete prerequisites for Azure Virtual Desktop</a></li>
+                        <li style="margin-bottom: var(--spacing-s);"><a href="https://learn.microsoft.com/en-us/azure/virtual-desktop/create-host-pool" target="_blank" style="color: var(--color-brand-primary);">Deploy Azure Virtual Desktop</a> using the recommended VM configuration</li>
+                        <li style="margin-bottom: var(--spacing-s);"><a href="https://azure.microsoft.com/en-us/pricing/calculator/" target="_blank" style="color: var(--color-brand-primary);">Use the Azure Pricing Calculator</a> for detailed cost analysis with your specific licensing</li>
+                        <li style="margin-bottom: var(--spacing-s);"><a href="https://learn.microsoft.com/en-us/azure/virtual-desktop/azure-ad-joined-session-hosts" target="_blank" style="color: var(--color-brand-primary);">Configure identity and access management</a> for your session hosts</li>
+                        <li style="margin-bottom: var(--spacing-s);"><a href="https://learn.microsoft.com/en-us/azure/virtual-desktop/fslogix-profile-container-configure-azure-files-active-directory" target="_blank" style="color: var(--color-brand-primary);">Set up FSLogix profile containers</a> for optimal user experience</li>
+                    </ul>
+
+                    <div class="btn-group">
+                        <button class="btn-primary" onclick="exportResults()">
+                            <svg viewBox="0 0 16 16"><path d="M8 1a.5.5 0 0 1 .5.5v9.793l2.146-2.147a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 1 1 .708-.708L7.5 11.293V1.5A.5.5 0 0 1 8 1zM2 13.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/></svg>
+                            Export results
+                        </button>
+                        <button class="btn-secondary" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+                            Modify configuration
+                        </button>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Feedback section -->
+            <section style="margin-top: var(--spacing-xxxl); padding-top: var(--spacing-xxl); border-top: 1px solid var(--color-neutral-stroke-3);">
+                <h4>Feedback</h4>
+                <p>Was this tool helpful?</p>
+                <div class="btn-group" style="margin-top: var(--spacing-s);">
+                    <button class="btn-secondary" onclick="this.style.background='var(--color-success-bg)'; this.style.borderColor='var(--color-success)'; this.style.color='var(--color-success)'; this.textContent='Thank you!'">Yes</button>
+                    <button class="btn-secondary" onclick="this.style.background='var(--color-warning-bg)'; this.style.borderColor='var(--color-warning)'; this.style.color='var(--color-warning)'; this.textContent='Thanks for feedback'">No</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="site-footer__links">
+            <a href="https://learn.microsoft.com/en-us/previous-versions/">Previous Versions</a>
+            <a href="https://techcommunity.microsoft.com/t5/microsoft-learn-blog/bg-p/MicrosoftLearnBlog">Blog</a>
+            <a href="https://learn.microsoft.com/en-us/contribute">Contribute</a>
+            <a href="https://go.microsoft.com/fwlink/?LinkId=521839">Privacy</a>
+            <a href="https://learn.microsoft.com/en-us/legal/termsofuse">Terms of Use</a>
+            <a href="https://www.microsoft.com/legal/intellectualproperty/Trademarks/">Trademarks</a>
+        </div>
+        <div>&copy; Microsoft 2026</div>
+    </footer>
+
+    <!-- ==========================================
+         JavaScript — Sizing Logic
+         ========================================== -->
+    <script>
+        // ============================================
+        // Theme Toggle
+        // ============================================
+        function toggleTheme() {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme');
+            const newTheme = current === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+
+            const lightIcon = document.querySelector('.icon-light');
+            const darkIcon = document.querySelector('.icon-dark');
+            if (newTheme === 'dark') {
+                lightIcon.style.display = 'none';
+                darkIcon.style.display = 'block';
+            } else {
+                lightIcon.style.display = 'block';
+                darkIcon.style.display = 'none';
+            }
+
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Load saved theme
+        (function() {
+            const saved = localStorage.getItem('theme');
+            if (saved) {
+                document.documentElement.setAttribute('data-theme', saved);
+                if (saved === 'dark') {
+                    document.querySelector('.icon-light').style.display = 'none';
+                    document.querySelector('.icon-dark').style.display = 'block';
+                }
+            }
+        })();
+
+        // ============================================
+        // Mobile Sidebar Toggle
+        // ============================================
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('mobile-open');
+        }
+
+        // ============================================
+        // Range Display Update
+        // ============================================
+        function updateRangeDisplay(el, targetId, suffix) {
+            const display = document.getElementById(targetId);
+            display.textContent = Number(el.value).toLocaleString() + (suffix || '');
+        }
+
+        // ============================================
+        // Progress Steps
+        // ============================================
+        function updateProgress() {
+            const steps = document.querySelectorAll('.progress-step');
+            // Determine completed steps based on interaction
+            const hasUsers = document.getElementById('concurrentUsers').value > 0;
+            const hasWorkload = document.querySelector('input[name="workloadType"]:checked');
+            const hasGpu = document.querySelector('input[name="gpuType"]:checked');
+            const hasStorage = document.getElementById('osDiskType').value;
+
+            const completed = [hasUsers, hasWorkload, hasGpu, hasStorage];
+            
+            steps.forEach((step, i) => {
+                step.classList.remove('active', 'completed');
+                if (i < 4 && completed[i]) {
+                    step.classList.add('completed');
+                }
+            });
+
+            // Find first incomplete step and mark as active
+            const firstIncomplete = completed.indexOf(false);
+            if (firstIncomplete !== -1) {
+                steps[firstIncomplete].classList.add('active');
+            } else {
+                steps[4].classList.add('active');
+            }
+        }
+
+        // ============================================
+        // Active TOC tracking on scroll
+        // ============================================
+        const tocLinks = document.querySelectorAll('.sidebar__nav a');
+        const sections = [];
+
+        tocLinks.forEach(link => {
+            const id = link.getAttribute('href').slice(1);
+            const section = document.getElementById(id);
+            if (section) sections.push({ id, el: section, link });
+        });
+
+        function updateActiveToc() {
+            const scrollY = window.scrollY + 150;
+            let current = sections[0];
+
+            for (const s of sections) {
+                if (s.el.offsetTop <= scrollY) {
+                    current = s;
+                }
+            }
+
+            tocLinks.forEach(l => l.classList.remove('active'));
+            if (current) current.link.classList.add('active');
+        }
+
+        window.addEventListener('scroll', updateActiveToc, { passive: true });
+        updateActiveToc();
+
+        // ============================================
+        // VM Database
+        // ============================================
+        const vmDatabase = {
+            // Non-GPU VMs
+            'D-series': {
+                light: { sku: 'Standard_D2s_v5', vcpus: 2, ram: 8, usersPerVm: 4, costPerMonth: 70 },
+                medium: { sku: 'Standard_D4s_v5', vcpus: 4, ram: 16, usersPerVm: 4, costPerMonth: 140 },
+                heavy: { sku: 'Standard_D8s_v5', vcpus: 8, ram: 32, usersPerVm: 4, costPerMonth: 281 },
+                power: { sku: 'Standard_D16s_v5', vcpus: 16, ram: 64, usersPerVm: 4, costPerMonth: 562 }
+            },
+            'D-series (memory-opt)': {
+                light: { sku: 'Standard_E2s_v5', vcpus: 2, ram: 16, usersPerVm: 4, costPerMonth: 92 },
+                medium: { sku: 'Standard_E4s_v5', vcpus: 4, ram: 32, usersPerVm: 4, costPerMonth: 184 },
+                heavy: { sku: 'Standard_E8s_v5', vcpus: 8, ram: 64, usersPerVm: 4, costPerMonth: 368 },
+                power: { sku: 'Standard_E16s_v5', vcpus: 16, ram: 128, usersPerVm: 4, costPerMonth: 736 }
+            },
+            // GPU VMs
+            'NV-series (light GPU)': {
+                light: { sku: 'Standard_NV6ads_A10_v5', vcpus: 6, ram: 55, gpu: '1/6 A10', usersPerVm: 4, costPerMonth: 452 },
+                medium: { sku: 'Standard_NV12ads_A10_v5', vcpus: 12, ram: 110, gpu: '1/3 A10', usersPerVm: 4, costPerMonth: 904 },
+                heavy: { sku: 'Standard_NV18ads_A10_v5', vcpus: 18, ram: 220, gpu: '1/2 A10', usersPerVm: 4, costPerMonth: 1356 },
+                power: { sku: 'Standard_NV36ads_A10_v5', vcpus: 36, ram: 440, gpu: '1x A10', usersPerVm: 4, costPerMonth: 2712 }
+            },
+            'NC-series (medium GPU)': {
+                light: { sku: 'Standard_NC4as_T4_v3', vcpus: 4, ram: 28, gpu: '1x T4', usersPerVm: 2, costPerMonth: 526 },
+                medium: { sku: 'Standard_NC8as_T4_v3', vcpus: 8, ram: 56, gpu: '1x T4', usersPerVm: 2, costPerMonth: 752 },
+                heavy: { sku: 'Standard_NC16as_T4_v3', vcpus: 16, ram: 110, gpu: '1x T4', usersPerVm: 2, costPerMonth: 1204 },
+                power: { sku: 'Standard_NC64as_T4_v3', vcpus: 64, ram: 440, gpu: '4x T4', usersPerVm: 4, costPerMonth: 4316 }
+            },
+            'NC-series (heavy GPU)': {
+                light: { sku: 'Standard_NC6s_v3', vcpus: 6, ram: 112, gpu: '1x V100', usersPerVm: 2, costPerMonth: 2205 },
+                medium: { sku: 'Standard_NC12s_v3', vcpus: 12, ram: 224, gpu: '2x V100', usersPerVm: 2, costPerMonth: 4410 },
+                heavy: { sku: 'Standard_NC24s_v3', vcpus: 24, ram: 448, gpu: '4x V100', usersPerVm: 4, costPerMonth: 8820 },
+                power: { sku: 'Standard_NC24s_v3', vcpus: 24, ram: 448, gpu: '4x V100', usersPerVm: 2, costPerMonth: 8820 }
+            }
+        };
+
+        // Single-session users per VM = 1
+        const singleSessionUsersPerVm = 1;
+
+        // ============================================
+        // Sizing Calculation
+        // ============================================
+        function calculateSizing() {
+            const concurrentUsers = parseInt(document.getElementById('concurrentUsers').value);
+            const totalUsers = parseInt(document.getElementById('totalUsers').value) || concurrentUsers;
+            const sessionType = document.querySelector('input[name="sessionType"]:checked').value;
+            const workloadType = document.querySelector('input[name="workloadType"]:checked').value;
+            const gpuType = document.querySelector('input[name="gpuType"]:checked').value;
+            const monitors = parseInt(document.getElementById('monitorCount').value);
+            const resolution = document.getElementById('resolution').value;
+            const osDiskType = document.getElementById('osDiskType').value;
+            const profileStorage = document.getElementById('profileStorage').value;
+            const profileSize = parseInt(document.getElementById('profileSize').value);
+            const redundancy = document.getElementById('redundancy').value;
+            const region = document.getElementById('region').value;
+            const peakHours = parseInt(document.getElementById('peakHours').value);
+
+            const featureHA = document.getElementById('featureHA').checked;
+            const featureBackup = document.getElementById('featureBackup').checked;
+            const featureMonitor = document.getElementById('featureMonitor').checked;
+            const featureDefender = document.getElementById('featureDefender').checked;
+            const featureAutoscale = document.getElementById('featureAutoscale').checked;
+
+            // Determine which VM series to recommend
+            let primarySeries, secondarySeries;
+            
+            if (gpuType === 'none') {
+                primarySeries = 'D-series';
+                secondarySeries = 'D-series (memory-opt)';
+            } else if (gpuType === 'light') {
+                primarySeries = 'NV-series (light GPU)';
+                secondarySeries = 'D-series';
+            } else if (gpuType === 'medium') {
+                primarySeries = 'NC-series (medium GPU)';
+                secondarySeries = 'NV-series (light GPU)';
+            } else {
+                primarySeries = 'NC-series (heavy GPU)';
+                secondarySeries = 'NC-series (medium GPU)';
+            }
+
+            const primaryVm = vmDatabase[primarySeries][workloadType];
+            const secondaryVm = vmDatabase[secondarySeries][workloadType];
+
+            // Calculate users per VM
+            let usersPerVm = primaryVm.usersPerVm;
+            
+            if (sessionType === 'single') {
+                usersPerVm = 1;
+            } else {
+                // Multi-session: adjust based on workload
+                const workloadMultipliers = { light: 2, medium: 1, heavy: 0.75, power: 0.5 };
+                usersPerVm = Math.max(1, Math.round(primaryVm.usersPerVm * workloadMultipliers[workloadType]));
+                
+                // Adjust for high resolution/monitors
+                if (monitors >= 3 || resolution === '4k') {
+                    usersPerVm = Math.max(1, usersPerVm - 1);
+                }
+            }
+
+            let usersPerVmSecondary = secondaryVm.usersPerVm;
+            if (sessionType === 'single') {
+                usersPerVmSecondary = 1;
+            } else {
+                const workloadMultipliers = { light: 2, medium: 1, heavy: 0.75, power: 0.5 };
+                usersPerVmSecondary = Math.max(1, Math.round(secondaryVm.usersPerVm * workloadMultipliers[workloadType]));
+                if (monitors >= 3 || resolution === '4k') {
+                    usersPerVmSecondary = Math.max(1, usersPerVmSecondary - 1);
+                }
+            }
+
+            // Calculate number of VMs
+            const vmsRequired = Math.ceil(concurrentUsers / usersPerVm);
+            const vmsRequiredSecondary = Math.ceil(concurrentUsers / usersPerVmSecondary);
+
+            // Add buffer for HA
+            const haBuffer = featureHA ? Math.max(1, Math.ceil(vmsRequired * 0.1)) : 0;
+            const totalVms = vmsRequired + haBuffer;
+
+            // Cost calculations
+            const regionMultiplier = {
+                'eastus': 1.0, 'westus2': 1.0, 'westeurope': 1.12,
+                'northeurope': 1.08, 'uksouth': 1.1, 'australiaeast': 1.2,
+                'southeastasia': 1.05, 'japaneast': 1.15
+            }[region] || 1.0;
+
+            // Autoscale savings (run at ~60% capacity off-peak, assuming 8 peak hours / 16 off-peak)
+            const peakRatio = peakHours / 24;
+            const autoscaleSavings = featureAutoscale ? (1 - peakRatio) * 0.4 : 0;
+
+            const vmMonthlyCost = totalVms * primaryVm.costPerMonth * regionMultiplier * (1 - autoscaleSavings);
+
+            // Storage cost
+            const totalProfileStorageGB = totalUsers * profileSize;
+            let storageCostPerGB;
+            switch(profileStorage) {
+                case 'azure-files-standard': storageCostPerGB = 0.06; break;
+                case 'azure-files-premium': storageCostPerGB = 0.16; break;
+                case 'netapp': storageCostPerGB = 0.20; break;
+                default: storageCostPerGB = 0;
+            }
+
+            const redundancyMultiplier = { 'lrs': 1.0, 'zrs': 1.25, 'grs': 2.0 }[redundancy] || 1.0;
+            const profileStorageCost = totalProfileStorageGB * storageCostPerGB * redundancyMultiplier;
+
+            // OS disk cost
+            const osDiskCostPerVM = { 'standard-hdd': 4.5, 'standard-ssd': 7.5, 'premium-ssd': 19.5 }[osDiskType] || 7.5;
+            const osDiskTotalCost = totalVms * osDiskCostPerVM;
+
+            // Additional services
+            let additionalCost = 0;
+            const additionalItems = [];
+
+            if (featureBackup) {
+                const backupCost = totalVms * 10;
+                additionalCost += backupCost;
+                additionalItems.push({ label: 'Azure Backup', cost: backupCost });
+            }
+            if (featureMonitor) {
+                const monitorCost = totalVms * 5 + 15;
+                additionalCost += monitorCost;
+                additionalItems.push({ label: 'Azure Monitor / Insights', cost: monitorCost });
+            }
+            if (featureDefender) {
+                const defenderCost = totalVms * 15;
+                additionalCost += defenderCost;
+                additionalItems.push({ label: 'Microsoft Defender for Cloud', cost: defenderCost });
+            }
+
+            // Network bandwidth estimate (3 Mbps per user for general, 10 for GPU)
+            const bandwidthPerUser = gpuType === 'none' ? 3 : gpuType === 'light' ? 5 : 10;
+            const totalBandwidthMbps = concurrentUsers * bandwidthPerUser;
+            const bandwidthCostEstimate = Math.max(0, (totalBandwidthMbps * peakHours * 30 * 3600 / 8 / 1073741824 - 100)) * 0.087;
+            additionalItems.push({ label: 'Network egress (estimated)', cost: bandwidthCostEstimate });
+            additionalCost += bandwidthCostEstimate;
+
+            const totalMonthlyCost = vmMonthlyCost + profileStorageCost + osDiskTotalCost + additionalCost;
+            const costPerUser = totalMonthlyCost / concurrentUsers;
+
+            // ============================================
+            // Render Results
+            // ============================================
+
+            // Summary cards
+            const summaryHTML = `
+                <div class="result-card">
+                    <div class="result-card__value">${totalVms}</div>
+                    <div class="result-card__label">Session Host VMs</div>
+                    <div class="result-card__sub">${haBuffer > 0 ? `Includes ${haBuffer} HA buffer` : 'No HA buffer'}</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-card__value">${primaryVm.vcpus * totalVms}</div>
+                    <div class="result-card__label">Total vCPUs</div>
+                    <div class="result-card__sub">${primaryVm.vcpus} vCPUs per VM</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-card__value">${primaryVm.ram * totalVms} GB</div>
+                    <div class="result-card__label">Total Memory</div>
+                    <div class="result-card__sub">${primaryVm.ram} GB per VM</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-card__value">$${formatNumber(Math.round(totalMonthlyCost))}</div>
+                    <div class="result-card__label">Est. Monthly Cost</div>
+                    <div class="result-card__sub">~$${formatNumber(Math.round(costPerUser))}/user/month</div>
+                </div>
+            `;
+            document.getElementById('resultsSummary').innerHTML = summaryHTML;
+
+            // VM table
+            const vmTableHTML = `
+                <tr class="highlight">
+                    <td><strong>${primarySeries}</strong></td>
+                    <td><code style="font-family:var(--font-family-mono);background:var(--color-neutral-background-3);padding:2px 8px;border-radius:3px;font-size:12px;">${primaryVm.sku}</code></td>
+                    <td>${primaryVm.vcpus}</td>
+                    <td>${primaryVm.ram} GB${primaryVm.gpu ? ' + ' + primaryVm.gpu : ''}</td>
+                    <td>${usersPerVm}</td>
+                    <td>${totalVms}</td>
+                    <td>$${formatNumber(Math.round(vmMonthlyCost))}</td>
+                    <td><span class="badge badge--recommended">Recommended</span></td>
+                </tr>
+                <tr>
+                    <td>${secondarySeries}</td>
+                    <td><code style="font-family:var(--font-family-mono);background:var(--color-neutral-background-3);padding:2px 8px;border-radius:3px;font-size:12px;">${secondaryVm.sku}</code></td>
+                    <td>${secondaryVm.vcpus}</td>
+                    <td>${secondaryVm.ram} GB${secondaryVm.gpu ? ' + ' + secondaryVm.gpu : ''}</td>
+                    <td>${usersPerVmSecondary}</td>
+                    <td>${vmsRequiredSecondary}</td>
+                    <td>$${formatNumber(Math.round(vmsRequiredSecondary * secondaryVm.costPerMonth * regionMultiplier))}</td>
+                    <td><span class="badge badge--optional">Alternative</span></td>
+                </tr>
+            `;
+            document.getElementById('vmTableBody').innerHTML = vmTableHTML;
+
+            // Cost breakdown
+            let costHTML = `
+                <div class="cost-row">
+                    <span class="cost-row__label">Compute — ${totalVms}x ${primaryVm.sku}</span>
+                    <span class="cost-row__value">$${formatNumber(Math.round(vmMonthlyCost))}/mo</span>
+                </div>
+                <div class="cost-row">
+                    <span class="cost-row__label">OS Disks — ${totalVms}x ${osDiskType.replace(/-/g, ' ')}</span>
+                    <span class="cost-row__value">$${formatNumber(Math.round(osDiskTotalCost))}/mo</span>
+                </div>
+                <div class="cost-row">
+                    <span class="cost-row__label">Profile Storage — ${formatNumber(totalProfileStorageGB)} GB (${profileStorage.replace(/-/g, ' ')})</span>
+                    <span class="cost-row__value">$${formatNumber(Math.round(profileStorageCost))}/mo</span>
+                </div>
+            `;
+
+            additionalItems.forEach(item => {
+                costHTML += `
+                <div class="cost-row">
+                    <span class="cost-row__label">${item.label}</span>
+                    <span class="cost-row__value">$${formatNumber(Math.round(item.cost))}/mo</span>
+                </div>`;
+            });
+
+            if (featureAutoscale) {
+                const savings = totalVms * primaryVm.costPerMonth * regionMultiplier * autoscaleSavings;
+                costHTML += `
+                <div class="cost-row">
+                    <span class="cost-row__label" style="color:var(--color-success)">Autoscale savings (estimated)</span>
+                    <span class="cost-row__value" style="color:var(--color-success)">-$${formatNumber(Math.round(savings))}/mo</span>
+                </div>`;
+            }
+
+            costHTML += `
+                <div class="cost-row">
+                    <span class="cost-row__label"><strong>Total estimated monthly cost</strong></span>
+                    <span class="cost-row__value"><strong>$${formatNumber(Math.round(totalMonthlyCost))}/mo</strong></span>
+                </div>
+            `;
+
+            document.getElementById('costBreakdown').innerHTML = costHTML;
+
+            // Show results
+            const resultsEl = document.getElementById('results');
+            resultsEl.classList.add('visible');
+
+            // Update progress to completed
+            document.querySelectorAll('.progress-step').forEach(s => {
+                s.classList.remove('active');
+                s.classList.add('completed');
+            });
+            document.querySelector('.progress-step[data-step="5"]').classList.remove('completed');
+            document.querySelector('.progress-step[data-step="5"]').classList.add('active');
+
+            // Scroll to results
+            setTimeout(() => {
+                document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+
+            // Store results for export
+            window._sizingResults = {
+                concurrentUsers, totalUsers, sessionType, workloadType, gpuType,
+                monitors, resolution, osDiskType, profileStorage, profileSize,
+                redundancy, region, peakHours, featureHA, featureBackup,
+                featureMonitor, featureDefender, featureAutoscale,
+                primaryVm, primarySeries, totalVms, vmsRequired, haBuffer,
+                vmMonthlyCost, profileStorageCost, osDiskTotalCost,
+                additionalCost, totalMonthlyCost, costPerUser,
+                totalProfileStorageGB, usersPerVm
+            };
+        }
+
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        // ============================================
+        // Reset
+        // ============================================
+        function resetForm() {
+            document.getElementById('concurrentUsers').value = 100;
+            document.getElementById('concurrentUsersVal').textContent = '100';
+            document.getElementById('totalUsers').value = 300;
+            document.getElementById('multiSession').checked = true;
+            document.getElementById('peakHours').value = 8;
+            document.getElementById('peakHoursVal').textContent = '8 hrs';
+            document.getElementById('wlMedium').checked = true;
+            document.getElementById('gpuNone').checked = true;
+            document.getElementById('monitorCount').value = '2';
+            document.getElementById('resolution').value = '1080p';
+            document.getElementById('osDiskType').value = 'standard-ssd';
+            document.getElementById('profileStorage').value = 'azure-files-premium';
+            document.getElementById('profileSize').value = 30;
+            document.getElementById('profileSizeVal').textContent = '30 GB';
+            document.getElementById('redundancy').value = 'lrs';
+            document.getElementById('region').value = 'eastus';
+            document.getElementById('featureHA').checked = false;
+            document.getElementById('featureBackup').checked = true;
+            document.getElementById('featureMonitor').checked = true;
+            document.getElementById('featureDefender').checked = false;
+            document.getElementById('featureAutoscale').checked = false;
+
+            document.getElementById('results').classList.remove('visible');
+            updateProgress();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ============================================
+        // Export Results
+        // ============================================
+        function exportResults() {
+            if (!window._sizingResults) return;
+            const r = window._sizingResults;
+
+            const text = `
+================================================================================
+  INFRASTRUCTURE SIZING RESULTS
+  Generated: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+================================================================================
+
+CONFIGURATION
+─────────────────────────────────
+  Concurrent Users:      ${r.concurrentUsers.toLocaleString()}
+  Total Named Users:     ${r.totalUsers.toLocaleString()}
+  Session Type:          ${r.sessionType === 'multi' ? 'Multi-session' : 'Single-session'}
+  Workload Profile:      ${r.workloadType.charAt(0).toUpperCase() + r.workloadType.slice(1)}
+  GPU Requirement:       ${r.gpuType === 'none' ? 'No GPU' : r.gpuType.charAt(0).toUpperCase() + r.gpuType.slice(1) + ' GPU'}
+  Monitors:              ${r.monitors}
+  Display Resolution:    ${r.resolution}
+  Azure Region:          ${r.region}
+  Daily Usage:           ${r.peakHours} hours/user
+
+VM RECOMMENDATION
+─────────────────────────────────
+  Recommended Series:    ${r.primarySeries}
+  VM SKU:                ${r.primaryVm.sku}
+  vCPUs per VM:          ${r.primaryVm.vcpus}
+  Memory per VM:         ${r.primaryVm.ram} GB
+  Users per VM:          ${r.usersPerVm}
+  VMs Required:          ${r.vmsRequired}
+  HA Buffer VMs:         ${r.haBuffer}
+  Total VMs:             ${r.totalVms}
+
+STORAGE
+─────────────────────────────────
+  OS Disk Type:          ${r.osDiskType.replace(/-/g, ' ')}
+  Profile Storage:       ${r.profileStorage.replace(/-/g, ' ')}
+  Profile Size/User:     ${r.profileSize} GB
+  Total Profile Storage: ${r.totalProfileStorageGB.toLocaleString()} GB
+  Redundancy:            ${r.redundancy.toUpperCase()}
+
+COST ESTIMATE (Monthly)
+─────────────────────────────────
+  Compute:               $${formatNumber(Math.round(r.vmMonthlyCost))}
+  OS Disks:              $${formatNumber(Math.round(r.osDiskTotalCost))}
+  Profile Storage:       $${formatNumber(Math.round(r.profileStorageCost))}
+  Additional Services:   $${formatNumber(Math.round(r.additionalCost))}
+  ─────────────────────
+  TOTAL:                 $${formatNumber(Math.round(r.totalMonthlyCost))}/month
+  Per User:              ~$${formatNumber(Math.round(r.costPerUser))}/user/month
+
+FEATURES
+─────────────────────────────────
+  High Availability:     ${r.featureHA ? 'Yes' : 'No'}
+  Azure Backup:          ${r.featureBackup ? 'Yes' : 'No'}
+  Azure Monitor:         ${r.featureMonitor ? 'Yes' : 'No'}
+  Defender for Cloud:    ${r.featureDefender ? 'Yes' : 'No'}
+  Autoscale:             ${r.featureAutoscale ? 'Yes' : 'No'}
+
+================================================================================
+  Note: These are estimates. Use the Azure Pricing Calculator for precise quotes.
+  https://azure.microsoft.com/en-us/pricing/calculator/
+================================================================================
+`.trim();
+
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `sizing-results-${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize progress
+        updateProgress();
+    </script>
+</body>
+</html>
