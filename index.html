@@ -1167,6 +1167,7 @@
                 <li><a href="#results-section">Sizing results</a></li>
                 <li><a href="#vm-recommendations">VM recommendations</a></li>
                 <li><a href="#cost-estimate">Cost estimate</a></li>
+                <li><a href="#benchmark-reference">Benchmark reference</a></li>
                 <li><a href="#next-steps">Next steps</a></li>
             </ul>
         </aside>
@@ -1196,7 +1197,7 @@
                         <svg viewBox="0 0 16 16"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 2.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm1.25 8.5h-2.5v-1h.75V8h-.75V7h1.75v4h.75v1z"/></svg>
                         Note
                     </div>
-                    <p class="mb-0">This tool provides estimates based on general best practices and Azure VM sizing guidance. Actual requirements may vary based on your specific applications and usage patterns. We recommend validating with a proof-of-concept deployment before production rollout.</p>
+                    <p class="mb-0">This tool provides estimates based on general best practices, Azure VM sizing guidance, and data from the <strong>Windows Server 2025 Capacity Planning Whitepaper</strong>. Actual requirements may vary based on your specific applications and usage patterns. We recommend validating with a proof-of-concept deployment before production rollout.</p>
                 </div>
 
                 <!-- Progress Steps -->
@@ -1512,7 +1513,15 @@
                  ========================================== -->
             <section id="additional-options">
                 <h2>Additional options</h2>
-                <p>Configure optional features and high-availability settings for your deployment.</p>
+                <p>Configure deployment environment, capacity planning factors, and optional features for your deployment.</p>
+
+                <div class="callout callout--info">
+                    <div class="callout__title">
+                        <svg viewBox="0 0 16 16"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 2.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm1.25 8.5h-2.5v-1h.75V8h-.75V7h1.75v4h.75v1z"/></svg>
+                        Based on Microsoft capacity planning research
+                    </div>
+                    <p class="mb-0">The capacity buffer, OS version, and logon rate settings below are informed by the <strong>Windows Server 2025 Capacity Planning Whitepaper</strong>. The whitepaper recommends provisioning <strong>30% additional capacity</strong> for production workloads to absorb real-world usage variability, logon bursts, and non-uniform workload patterns.</p>
+                </div>
 
                 <div class="form-section">
                     <div class="form-section__header">
@@ -1537,6 +1546,38 @@
                             <option value="southeastasia">Southeast Asia</option>
                             <option value="japaneast">Japan East</option>
                         </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="osVersion">Windows Server version</label>
+                        <select id="osVersion" onchange="updateProgress()">
+                            <option value="ws2025" selected>Windows Server 2025</option>
+                            <option value="ws2022">Windows Server 2022</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="capacityBuffer">
+                            Capacity buffer
+                            <span class="label-hint">(Whitepaper recommends 30% for production workloads)</span>
+                        </label>
+                        <div class="range-row">
+                            <input type="range" id="capacityBuffer" min="0" max="50" value="30" step="5" 
+                                   oninput="updateRangeDisplay(this, 'capacityBufferVal', '%')" onchange="updateProgress()">
+                            <span class="range-value" id="capacityBufferVal">30%</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="peakLogonRate">
+                            Expected peak logon rate
+                            <span class="label-hint">(Users per minute during 9AM rush)</span>
+                        </label>
+                        <div class="range-row">
+                            <input type="range" id="peakLogonRate" min="5" max="60" value="15" step="5" 
+                                   oninput="updateRangeDisplay(this, 'peakLogonRateVal', ' users/min')" onchange="updateProgress()">
+                            <span class="range-value" id="peakLogonRateVal">15 users/min</span>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -1589,6 +1630,10 @@
                     <div class="results-summary" id="resultsSummary">
                         <!-- Populated by JS -->
                     </div>
+
+                    <div id="appliedFactors">
+                        <!-- Populated by JS -->
+                    </div>
                 </section>
 
                 <section id="vm-recommendations">
@@ -1630,6 +1675,81 @@
                             Important
                         </div>
                         <p class="mb-0">Cost estimates are approximate and based on publicly available Azure pricing. Actual costs may vary based on reserved instances, enterprise agreements, hybrid benefit, and other factors. Use the <a href="https://azure.microsoft.com/en-us/pricing/calculator/" target="_blank" style="color: inherit; text-decoration: underline;">Azure Pricing Calculator</a> for precise quotes.</p>
+                    </div>
+                </section>
+
+                <section id="benchmark-reference">
+                    <h3>Benchmark reference</h3>
+                    <p>The following reference data is sourced from the <strong>Windows Server 2025 Capacity Planning Whitepaper</strong>, based on the Knowledge Worker scenario (Edge, Word, Excel in continuous loop). Use this to contextualize the sizing recommendations above.</p>
+
+                    <div class="callout callout--tip">
+                        <div class="callout__title">
+                            <svg viewBox="0 0 16 16"><path d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm11.28-1.78a.75.75 0 0 1 0 1.06l-4 4a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06L6.75 9.69l3.47-3.47a.75.75 0 0 1 1.06 0z"/></svg>
+                            Tip
+                        </div>
+                        <p class="mb-0">These benchmarks use a specific Knowledge Worker workload. Your actual capacity will vary based on your specific applications and usage patterns. The whitepaper recommends loading servers to <strong>70% of tested capacity</strong> and adding a <strong>30% hardware buffer</strong> for real-world conditions.</p>
+                    </div>
+
+                    <h4>CPU capacity scaling</h4>
+                    <p>User capacity by CPU core count (Knowledge Worker, Hyperthreading disabled, 64 GB RAM):</p>
+                    <div style="overflow-x:auto">
+                        <table class="rec-table">
+                            <thead>
+                                <tr><th>CPU Cores</th><th>User Capacity</th><th>Users / Core</th><th>Scaling Factor</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>4 cores</td><td>35</td><td>8.75</td><td>&mdash;</td></tr>
+                                <tr><td>8 cores</td><td>67</td><td>8.38</td><td>1.91x</td></tr>
+                                <tr><td>16 cores</td><td>102</td><td>6.38</td><td>1.52x</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h4>Memory capacity scaling</h4>
+                    <p>User capacity by memory (Knowledge Worker, 20-core CPU, memory-limited):</p>
+                    <div style="overflow-x:auto">
+                        <table class="rec-table">
+                            <thead>
+                                <tr><th>Memory</th><th>User Capacity</th><th>Users / GB</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>8 GB</td><td>23</td><td>2.88</td></tr>
+                                <tr><td>16 GB</td><td>50</td><td>3.13</td></tr>
+                                <tr><td>32 GB</td><td>100</td><td>3.13</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h4>Deployment factors</h4>
+                    <p>Key factors that impact user capacity based on whitepaper test results:</p>
+                    <div style="overflow-x:auto">
+                        <table class="rec-table">
+                            <thead>
+                                <tr><th>Factor</th><th>Impact on Capacity</th><th>Details</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Hyperthreading (ON vs OFF)</td><td>+12% to +28%</td><td>Greater benefit at lower core counts (28% at 4-core, 12% at 8-core)</td></tr>
+                                <tr><td>VM vs Bare Metal</td><td>&minus;15% to &minus;20%</td><td>Hypervisor overhead and 10&ndash;20% higher response times</td></tr>
+                                <tr><td>FSLogix vs Roaming Profiles</td><td>+8% capacity, 67% faster logon</td><td>FSLogix: 11.4s avg logon &bull; Roaming: 34.8s avg logon</td></tr>
+                                <tr><td>WS 2025 vs WS 2022</td><td>&minus;5% on WS 2025</td><td>Due to Credential Guard / VBS enabled by default</td></tr>
+                                <tr><td>Real-world usage variability</td><td>Plan for 70% of tested capacity</td><td>Non-uniform usage patterns in production environments</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h4>9AM logon rate impact</h4>
+                    <p>Peak logon rate significantly affects server performance. Exceeding safe logon rates causes CPU oversubscription and dramatically increased logon times:</p>
+                    <div style="overflow-x:auto">
+                        <table class="rec-table">
+                            <thead>
+                                <tr><th>Server Config</th><th>Logon Rate</th><th>Avg Logon Duration</th><th>CPU Impact</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>4-core</td><td>15 users/min</td><td>6.3 sec</td><td>~50% CPU &mdash; acceptable</td></tr>
+                                <tr class="highlight"><td>4-core</td><td>30 users/min</td><td>62.4 sec</td><td>&gt;80% CPU &mdash; oversubscribed</td></tr>
+                                <tr><td>8-core</td><td>30 users/min</td><td>8.9 sec</td><td>Manageable with extra cores</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </section>
 
@@ -1856,6 +1976,9 @@
             const featureMonitor = document.getElementById('featureMonitor').checked;
             const featureDefender = document.getElementById('featureDefender').checked;
             const featureAutoscale = document.getElementById('featureAutoscale').checked;
+            const osVersion = document.getElementById('osVersion').value;
+            const capacityBuffer = parseInt(document.getElementById('capacityBuffer').value) / 100;
+            const peakLogonRate = parseInt(document.getElementById('peakLogonRate').value);
 
             // Determine which VM series to recommend
             let primarySeries, secondarySeries;
@@ -1904,13 +2027,33 @@
                 }
             }
 
-            // Calculate number of VMs
-            const vmsRequired = Math.ceil(concurrentUsers / usersPerVm);
+            // Apply whitepaper correction factors (WS2025 Capacity Planning Whitepaper)
+            // VMs have 15-20% less capacity vs bare metal due to hypervisor overhead
+            const vmOverheadFactor = 0.82;
+            // WS2022 supports ~5% more users (WS2025 has Credential Guard/VBS overhead)
+            const osVersionFactor = osVersion === 'ws2025' ? 1.0 : 1.05;
+
+            if (sessionType === 'multi') {
+                usersPerVm = Math.max(1, Math.round(usersPerVm * vmOverheadFactor * osVersionFactor));
+                usersPerVmSecondary = Math.max(1, Math.round(usersPerVmSecondary * vmOverheadFactor * osVersionFactor));
+            }
+
+            // Calculate number of VMs (base)
+            const baseVmsRequired = Math.ceil(concurrentUsers / usersPerVm);
             const vmsRequiredSecondary = Math.ceil(concurrentUsers / usersPerVmSecondary);
+
+            // Apply capacity buffer (whitepaper recommends 30% for production)
+            const vmsRequired = Math.ceil(baseVmsRequired * (1 + capacityBuffer));
 
             // Add buffer for HA
             const haBuffer = featureHA ? Math.max(1, Math.ceil(vmsRequired * 0.1)) : 0;
             const totalVms = vmsRequired + haBuffer;
+
+            // Logon rate assessment (based on whitepaper 9AM logon data)
+            // Whitepaper: 4-core handles 15 users/min safely → ~3.75 users/min per vCPU pair
+            const perVmLogonRate = peakLogonRate / totalVms;
+            const safeLogonRatePerVm = primaryVm.vcpus * 1.875;
+            const logonRateOk = perVmLogonRate <= safeLogonRatePerVm;
 
             // Cost calculations
             const regionMultiplier = {
@@ -1981,7 +2124,7 @@
                 <div class="result-card">
                     <div class="result-card__value">${totalVms}</div>
                     <div class="result-card__label">Session Host VMs</div>
-                    <div class="result-card__sub">${haBuffer > 0 ? `Includes ${haBuffer} HA buffer` : 'No HA buffer'}</div>
+                    <div class="result-card__sub">${capacityBuffer > 0 ? `+${Math.round(capacityBuffer*100)}% buffer` : 'No buffer'}${haBuffer > 0 ? ` + ${haBuffer} HA` : ''}</div>
                 </div>
                 <div class="result-card">
                     <div class="result-card__value">${primaryVm.vcpus * totalVms}</div>
@@ -2000,6 +2143,44 @@
                 </div>
             `;
             document.getElementById('resultsSummary').innerHTML = summaryHTML;
+
+            // Factors applied & logon rate assessment
+            let factorsHTML = `
+                <div class="callout callout--tip" style="margin-top: var(--spacing-xl);">
+                    <div class="callout__title">
+                        <svg viewBox="0 0 16 16"><path d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm11.28-1.78a.75.75 0 0 1 0 1.06l-4 4a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06L6.75 9.69l3.47-3.47a.75.75 0 0 1 1.06 0z"/></svg>
+                        Capacity planning factors applied
+                    </div>
+                    <p style="margin-bottom: var(--spacing-s);">Based on the <strong>Windows Server 2025 Capacity Planning Whitepaper</strong>, the following adjustments have been applied:</p>
+                    <ul style="padding-left: var(--spacing-xl); margin: 0; color: var(--color-neutral-foreground-2);">
+                        ${sessionType === 'multi' ? '<li><strong>VM overhead factor (0.82x):</strong> ~18% capacity reduction vs bare metal due to hypervisor overhead</li>' : ''}
+                        ${osVersion === 'ws2025' ? '<li><strong>Windows Server 2025:</strong> Credential Guard / VBS overhead factored into baseline</li>' : '<li><strong>Windows Server 2022:</strong> +5% capacity benefit vs WS 2025 applied</li>'}
+                        ${capacityBuffer > 0 ? `<li><strong>Capacity buffer (+${Math.round(capacityBuffer*100)}%):</strong> ${Math.round(capacityBuffer*100)}% additional VMs for real-world usage variability and logon bursts</li>` : ''}
+                        ${haBuffer > 0 ? `<li><strong>High availability:</strong> ${haBuffer} additional VM(s) for availability zone redundancy</li>` : ''}
+                    </ul>
+                </div>`;
+
+            if (!logonRateOk) {
+                factorsHTML += `
+                <div class="callout callout--warning" style="margin-top: var(--spacing-l);">
+                    <div class="callout__title">
+                        <svg viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0l-6.857 11.667c-.457.778.092 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>
+                        9AM logon rate warning
+                    </div>
+                    <p class="mb-0">Your expected peak logon rate of <strong>${peakLogonRate} users/min</strong> across ${totalVms} VMs results in ~${perVmLogonRate.toFixed(1)} logons/min per VM. Based on whitepaper data, this may exceed safe capacity for ${primaryVm.vcpus}-vCPU VMs, potentially causing extended logon times (&gt;60 seconds). Consider adding more session hosts or staggering logon windows.</p>
+                </div>`;
+            } else {
+                factorsHTML += `
+                <div class="callout callout--info" style="margin-top: var(--spacing-l);">
+                    <div class="callout__title">
+                        <svg viewBox="0 0 16 16"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 2.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm1.25 8.5h-2.5v-1h.75V8h-.75V7h1.75v4h.75v1z"/></svg>
+                        9AM logon rate assessment
+                    </div>
+                    <p class="mb-0">Your expected peak logon rate of <strong>${peakLogonRate} users/min</strong> across ${totalVms} VMs (~${perVmLogonRate.toFixed(1)} logons/min per VM) is within acceptable limits for ${primaryVm.vcpus}-vCPU VMs based on whitepaper benchmarks.</p>
+                </div>`;
+            }
+
+            document.getElementById('appliedFactors').innerHTML = factorsHTML;
 
             // VM table
             const vmTableHTML = `
@@ -2091,10 +2272,11 @@
                 monitors, resolution, osDiskType, profileStorage, profileSize,
                 redundancy, region, peakHours, featureHA, featureBackup,
                 featureMonitor, featureDefender, featureAutoscale,
-                primaryVm, primarySeries, totalVms, vmsRequired, haBuffer,
+                osVersion, capacityBuffer, peakLogonRate,
+                primaryVm, primarySeries, totalVms, baseVmsRequired, vmsRequired, haBuffer,
                 vmMonthlyCost, profileStorageCost, osDiskTotalCost,
                 additionalCost, totalMonthlyCost, costPerUser,
-                totalProfileStorageGB, usersPerVm
+                totalProfileStorageGB, usersPerVm, logonRateOk
             };
         }
 
@@ -2127,6 +2309,11 @@
             document.getElementById('featureMonitor').checked = true;
             document.getElementById('featureDefender').checked = false;
             document.getElementById('featureAutoscale').checked = false;
+            document.getElementById('osVersion').value = 'ws2025';
+            document.getElementById('capacityBuffer').value = 30;
+            document.getElementById('capacityBufferVal').textContent = '30%';
+            document.getElementById('peakLogonRate').value = 15;
+            document.getElementById('peakLogonRateVal').textContent = '15 users/min';
 
             document.getElementById('results').classList.remove('visible');
             updateProgress();
@@ -2157,6 +2344,9 @@ CONFIGURATION
   Display Resolution:    ${r.resolution}
   Azure Region:          ${r.region}
   Daily Usage:           ${r.peakHours} hours/user
+  OS Version:            ${r.osVersion === 'ws2025' ? 'Windows Server 2025' : 'Windows Server 2022'}
+  Capacity Buffer:       ${Math.round(r.capacityBuffer * 100)}%
+  Peak Logon Rate:       ${r.peakLogonRate} users/min
 
 VM RECOMMENDATION
 ─────────────────────────────────
@@ -2165,7 +2355,8 @@ VM RECOMMENDATION
   vCPUs per VM:          ${r.primaryVm.vcpus}
   Memory per VM:         ${r.primaryVm.ram} GB
   Users per VM:          ${r.usersPerVm}
-  VMs Required:          ${r.vmsRequired}
+  Base VMs Required:     ${r.baseVmsRequired}
+  After Capacity Buffer: ${r.vmsRequired}
   HA Buffer VMs:         ${r.haBuffer}
   Total VMs:             ${r.totalVms}
 
@@ -2195,8 +2386,16 @@ FEATURES
   Defender for Cloud:    ${r.featureDefender ? 'Yes' : 'No'}
   Autoscale:             ${r.featureAutoscale ? 'Yes' : 'No'}
 
+CAPACITY PLANNING FACTORS (WS2025 Whitepaper)
+─────────────────────────────────
+  VM Overhead Factor:    0.82x (18% reduction vs bare metal)
+  OS Version Factor:     ${r.osVersion === 'ws2025' ? '1.0 (WS2025 baseline)' : '1.05 (+5% capacity for WS2022)'}
+  Capacity Buffer:       +${Math.round(r.capacityBuffer * 100)}% additional VMs
+  Logon Rate Status:     ${r.logonRateOk ? 'Within safe limits' : 'WARNING: May exceed safe per-VM logon rate'}
+
 ================================================================================
-  Note: These are estimates. Use the Azure Pricing Calculator for precise quotes.
+  Note: These are estimates informed by the WS2025 Capacity Planning Whitepaper.
+  Use the Azure Pricing Calculator for precise quotes.
   https://azure.microsoft.com/en-us/pricing/calculator/
 ================================================================================
 `.trim();
