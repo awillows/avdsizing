@@ -1044,7 +1044,7 @@
         .method-step {
             background: var(--color-neutral-background-2);
             border: 1px solid var(--color-neutral-stroke-3);
-            border-radius: var(--radius-m);
+            border-radius: var(--border-radius-medium);
             padding: var(--spacing-l) var(--spacing-xl);
             margin-bottom: var(--spacing-l);
         }
@@ -1077,7 +1077,7 @@
             font-size: var(--font-size-base-200);
             background: var(--color-neutral-background-3);
             border: 1px solid var(--color-neutral-stroke-3);
-            border-radius: var(--radius-s);
+            border-radius: var(--border-radius-small);
             padding: var(--spacing-m) var(--spacing-l);
             margin: var(--spacing-s) 0;
             overflow-x: auto;
@@ -1197,14 +1197,192 @@
             scroll-margin-top: 100px;
         }
 
+        /* ============================================
+           Sticky Action Bar
+           ============================================ */
+        .sticky-action-bar {
+            position: sticky;
+            bottom: 0;
+            z-index: 50;
+            background: var(--color-neutral-background-1);
+            border-top: 1px solid var(--color-neutral-stroke-2);
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
+            padding: var(--spacing-m) var(--spacing-xl);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-l);
+            opacity: 0;
+            transform: translateY(100%);
+            pointer-events: none;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .sticky-action-bar.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .sticky-action-bar__summary {
+            display: flex;
+            gap: var(--spacing-xl);
+            font-size: var(--font-size-base-200);
+            color: var(--color-neutral-foreground-3);
+            flex-wrap: wrap;
+            min-width: 0;
+        }
+
+        .sticky-action-bar__item {
+            white-space: nowrap;
+        }
+
+        .sticky-action-bar__item strong {
+            color: var(--color-neutral-foreground-1);
+        }
+
+        .sticky-action-bar__actions {
+            display: flex;
+            gap: var(--spacing-m);
+            flex-shrink: 0;
+        }
+
+        /* ============================================
+           Sidebar TOC grouping
+           ============================================ */
+        .sidebar__group-label {
+            font-size: 11px;
+            font-weight: var(--font-weight-bold);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--color-neutral-foreground-disabled);
+            padding: var(--spacing-l) var(--spacing-xl) var(--spacing-xs);
+            margin-top: var(--spacing-s);
+        }
+
+        .sidebar__divider {
+            height: 1px;
+            background: var(--color-neutral-stroke-3);
+            margin: var(--spacing-m) var(--spacing-xl);
+        }
+
+        /* ============================================
+           Clickable progress steps
+           ============================================ */
+        .progress-step {
+            cursor: pointer;
+        }
+
+        .progress-step:hover .progress-step__number {
+            border-color: var(--color-brand-primary);
+        }
+
+        /* ============================================
+           Collapsible sections (MS Learn details)
+           ============================================ */
+        .collapsible-section {
+            border: 1px solid var(--color-neutral-stroke-3);
+            border-radius: var(--border-radius-medium);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .collapsible-section summary {
+            padding: var(--spacing-l) var(--spacing-xl);
+            font-weight: var(--font-weight-semibold);
+            cursor: pointer;
+            color: var(--color-neutral-foreground-1);
+            background: var(--color-neutral-background-2);
+            border-radius: var(--border-radius-medium);
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-s);
+            user-select: none;
+        }
+
+        .collapsible-section summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .collapsible-section summary::before {
+            content: '\25B6';
+            font-size: 10px;
+            color: var(--color-neutral-foreground-3);
+            transition: transform 0.2s;
+            display: inline-block;
+        }
+
+        .collapsible-section[open] summary::before {
+            transform: rotate(90deg);
+        }
+
+        .collapsible-section[open] summary {
+            border-radius: var(--border-radius-medium) var(--border-radius-medium) 0 0;
+            border-bottom: 1px solid var(--color-neutral-stroke-3);
+        }
+
+        .collapsible-section__content {
+            padding: var(--spacing-xl);
+        }
+
+        /* ============================================
+           Config summary strip
+           ============================================ */
+        .config-summary {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-m);
+            padding: var(--spacing-m) var(--spacing-l);
+            background: var(--color-neutral-background-3);
+            border: 1px solid var(--color-neutral-stroke-3);
+            border-radius: var(--border-radius-medium);
+            margin-bottom: var(--spacing-xxl);
+            font-size: var(--font-size-base-200);
+            color: var(--color-neutral-foreground-3);
+        }
+
+        .config-summary__chip {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            background: var(--color-neutral-background-1);
+            border: 1px solid var(--color-neutral-stroke-2);
+            border-radius: 100px;
+            padding: 2px 12px;
+            font-size: var(--font-size-base-100);
+            white-space: nowrap;
+        }
+
+        .config-summary__chip strong {
+            color: var(--color-neutral-foreground-1);
+        }
+
+        @media (max-width: 1024px) {
+            .sticky-action-bar__summary {
+                display: none;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .sticky-action-bar {
+                flex-direction: column;
+                gap: var(--spacing-s);
+            }
+            .config-summary {
+                gap: var(--spacing-xs);
+            }
+        }
+
         /* Print styles */
         @media print {
-            .top-nav, .sub-nav, .sidebar, .site-footer, .btn-group, .theme-toggle, .mobile-menu-toggle {
+            .top-nav, .sub-nav, .sidebar, .site-footer, .btn-group, .theme-toggle, .mobile-menu-toggle, .sticky-action-bar {
                 display: none !important;
             }
             .page-layout { display: block; }
             .content { max-width: 100%; padding: 0; }
             #results { display: block !important; }
+            .collapsible-section { border: none; }
+            .collapsible-section[open] summary { border-bottom: 1px solid #ccc; }
         }
     </style>
 </head>
@@ -1257,11 +1435,14 @@
             <div class="sidebar__title">On this page</div>
             <ul class="sidebar__nav" id="tocNav">
                 <li><a href="#overview" class="active">Overview</a></li>
+                <div class="sidebar__group-label">Configuration</div>
                 <li><a href="#user-config">User configuration</a></li>
                 <li><a href="#workload-profile">Workload profile</a></li>
                 <li><a href="#graphics-requirements">Graphics requirements</a></li>
                 <li><a href="#storage-config">Storage &amp; redundancy</a></li>
                 <li><a href="#additional-options">Additional options</a></li>
+                <div class="sidebar__divider"></div>
+                <div class="sidebar__group-label">Results</div>
                 <li><a href="#results-section">Sizing results</a></li>
                 <li><a href="#vm-recommendations">VM recommendations</a></li>
                 <li><a href="javascript:void(0)" onclick="var r=document.getElementById('results'); if(!r.classList.contains('visible')){alert('Please run Calculate sizing first.');return;} switchTab('methodology'); setTimeout(function(){document.getElementById('tab-methodology').scrollIntoView({behavior:'smooth', block:'start'});},50);">How we calculate</a></li>
@@ -1301,30 +1482,39 @@
 
                 <!-- Progress Steps -->
                 <div class="progress-steps" aria-label="Configuration progress">
-                    <div class="progress-step active" data-step="1">
+                    <div class="progress-step active" data-step="1" onclick="document.getElementById('user-config').scrollIntoView({behavior:'smooth'})" title="Jump to Users">
                         <div class="progress-step__number">1</div>
                         <span>Users</span>
                     </div>
                     <div class="progress-step__connector"></div>
-                    <div class="progress-step" data-step="2">
+                    <div class="progress-step" data-step="2" onclick="document.getElementById('workload-profile').scrollIntoView({behavior:'smooth'})" title="Jump to Workload">
                         <div class="progress-step__number">2</div>
                         <span>Workload</span>
                     </div>
                     <div class="progress-step__connector"></div>
-                    <div class="progress-step" data-step="3">
+                    <div class="progress-step" data-step="3" onclick="document.getElementById('graphics-requirements').scrollIntoView({behavior:'smooth'})" title="Jump to Graphics">
                         <div class="progress-step__number">3</div>
                         <span>Graphics</span>
                     </div>
                     <div class="progress-step__connector"></div>
-                    <div class="progress-step" data-step="4">
+                    <div class="progress-step" data-step="4" onclick="document.getElementById('storage-config').scrollIntoView({behavior:'smooth'})" title="Jump to Storage">
                         <div class="progress-step__number">4</div>
                         <span>Storage</span>
                     </div>
                     <div class="progress-step__connector"></div>
-                    <div class="progress-step" data-step="5">
+                    <div class="progress-step" data-step="5" onclick="var r=document.getElementById('results');if(r.classList.contains('visible')){document.getElementById('results-section').scrollIntoView({behavior:'smooth'})}else{document.getElementById('additional-options').scrollIntoView({behavior:'smooth'})}" title="Jump to Results">
                         <div class="progress-step__number">5</div>
                         <span>Results</span>
                     </div>
+                </div>
+
+                <!-- Live config summary strip -->
+                <div class="config-summary" id="configSummary">
+                    <span class="config-summary__chip"><strong>100</strong>&nbsp;users</span>
+                    <span class="config-summary__chip"><strong>Multi-session</strong></span>
+                    <span class="config-summary__chip"><strong>Medium</strong>&nbsp;workload</span>
+                    <span class="config-summary__chip">No GPU</span>
+                    <span class="config-summary__chip">2 monitors</span>
                 </div>
             </section>
 
@@ -1792,76 +1982,84 @@
 
                 <section id="benchmark-reference">
                     <h3>Benchmark reference</h3>
-                    <p>The following reference data is sourced from the <a href="https://download.microsoft.com/download/41af4cc7-8c9d-4c12-b148-d4454c2edaea/Windows%20Server%202025%20Capacity%20Planning%20Whitepaper.pdf" target="_blank" style="color: var(--color-brand-primary);">Windows Server 2025 Capacity Planning Whitepaper</a> (on-premises Remote Desktop Services testing). While based on physical server testing with a Knowledge Worker scenario (Edge, Word, Excel in continuous loop), these benchmarks provide useful context for understanding relative scaling behaviour.</p>
+                    <p>The following reference data is sourced from the <a href="https://download.microsoft.com/download/41af4cc7-8c9d-4c12-b148-d4454c2edaea/Windows%20Server%202025%20Capacity%20Planning%20Whitepaper.pdf" target="_blank" style="color: var(--color-brand-primary);">Windows Server 2025 Capacity Planning Whitepaper</a> (on-premises RDS testing with a Knowledge Worker scenario). Expand each section for details.</p>
 
-                    <div class="callout callout--tip">
+                    <details class="collapsible-section">
+                        <summary>CPU capacity scaling</summary>
+                        <div class="collapsible-section__content">
+                            <p>User capacity by CPU core count (Knowledge Worker, Hyperthreading disabled, 64 GB RAM):</p>
+                            <div style="overflow-x:auto">
+                                <table class="rec-table">
+                                    <thead><tr><th>CPU Cores</th><th>User Capacity</th><th>Users / Core</th><th>Scaling Factor</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>4 cores</td><td>35</td><td>8.75</td><td>&mdash;</td></tr>
+                                        <tr><td>8 cores</td><td>67</td><td>8.38</td><td>1.91x</td></tr>
+                                        <tr><td>16 cores</td><td>102</td><td>6.38</td><td>1.52x</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </details>
+
+                    <details class="collapsible-section">
+                        <summary>Memory capacity scaling</summary>
+                        <div class="collapsible-section__content">
+                            <p>User capacity by memory (Knowledge Worker, 20-core CPU, memory-limited):</p>
+                            <div style="overflow-x:auto">
+                                <table class="rec-table">
+                                    <thead><tr><th>Memory</th><th>User Capacity</th><th>Users / GB</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>8 GB</td><td>23</td><td>2.88</td></tr>
+                                        <tr><td>16 GB</td><td>50</td><td>3.13</td></tr>
+                                        <tr><td>32 GB</td><td>100</td><td>3.13</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </details>
+
+                    <details class="collapsible-section">
+                        <summary>Deployment factors</summary>
+                        <div class="collapsible-section__content">
+                            <p>Key factors that impact user capacity based on capacity planning research and testing:</p>
+                            <div style="overflow-x:auto">
+                                <table class="rec-table">
+                                    <thead><tr><th>Factor</th><th>Impact on Capacity</th><th>Details</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>Hyperthreading (ON vs OFF)</td><td>+12% to +28%</td><td>Greater benefit at lower core counts (28% at 4-core, 12% at 8-core)</td></tr>
+                                        <tr><td>VM vs Bare Metal</td><td>&minus;15% to &minus;20%</td><td>Hypervisor overhead and 10&ndash;20% higher response times</td></tr>
+                                        <tr><td>FSLogix vs Roaming Profiles</td><td>+8% capacity, 67% faster logon</td><td>FSLogix: 11.4s avg logon &bull; Roaming: 34.8s avg logon</td></tr>
+                                        <tr><td>WS 2025 vs WS 2022</td><td>&minus;5% on WS 2025</td><td>Due to Credential Guard / VBS enabled by default</td></tr>
+                                        <tr><td>Real-world usage variability</td><td>Plan for 70% of tested capacity</td><td>Non-uniform usage patterns in production environments</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </details>
+
+                    <details class="collapsible-section">
+                        <summary>9AM logon rate impact</summary>
+                        <div class="collapsible-section__content">
+                            <p>Peak logon rate significantly affects server performance. Exceeding safe logon rates causes CPU oversubscription and dramatically increased logon times:</p>
+                            <div style="overflow-x:auto">
+                                <table class="rec-table">
+                                    <thead><tr><th>Server Config</th><th>Logon Rate</th><th>Avg Logon Duration</th><th>CPU Impact</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>4-core</td><td>15 users/min</td><td>6.3 sec</td><td>~50% CPU &mdash; acceptable</td></tr>
+                                        <tr class="highlight"><td>4-core</td><td>30 users/min</td><td>62.4 sec</td><td>&gt;80% CPU &mdash; oversubscribed</td></tr>
+                                        <tr><td>8-core</td><td>30 users/min</td><td>8.9 sec</td><td>Manageable with extra cores</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </details>
+
+                    <div class="callout callout--tip" style="margin-top: var(--spacing-l);">
                         <div class="callout__title">
                             <svg viewBox="0 0 16 16"><path d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm11.28-1.78a.75.75 0 0 1 0 1.06l-4 4a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06L6.75 9.69l3.47-3.47a.75.75 0 0 1 1.06 0z"/></svg>
                             Tip
                         </div>
                         <p class="mb-0">These benchmarks are from on-premises RDS testing with a specific Knowledge Worker workload. Your actual capacity on Azure VMs will vary. Use these as a supplementary reference alongside the <a href="https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/session-host-virtual-machine-sizing-guidelines" target="_blank" style="color: inherit; text-decoration: underline;">official sizing guidelines</a>. It is recommended to load servers to <strong>70% of tested capacity</strong> and add a <strong>30% hardware buffer</strong> for real-world conditions.</p>
-                    </div>
-
-                    <h4>CPU capacity scaling</h4>
-                    <p>User capacity by CPU core count (Knowledge Worker, Hyperthreading disabled, 64 GB RAM):</p>
-                    <div style="overflow-x:auto">
-                        <table class="rec-table">
-                            <thead>
-                                <tr><th>CPU Cores</th><th>User Capacity</th><th>Users / Core</th><th>Scaling Factor</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>4 cores</td><td>35</td><td>8.75</td><td>&mdash;</td></tr>
-                                <tr><td>8 cores</td><td>67</td><td>8.38</td><td>1.91x</td></tr>
-                                <tr><td>16 cores</td><td>102</td><td>6.38</td><td>1.52x</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <h4>Memory capacity scaling</h4>
-                    <p>User capacity by memory (Knowledge Worker, 20-core CPU, memory-limited):</p>
-                    <div style="overflow-x:auto">
-                        <table class="rec-table">
-                            <thead>
-                                <tr><th>Memory</th><th>User Capacity</th><th>Users / GB</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>8 GB</td><td>23</td><td>2.88</td></tr>
-                                <tr><td>16 GB</td><td>50</td><td>3.13</td></tr>
-                                <tr><td>32 GB</td><td>100</td><td>3.13</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <h4>Deployment factors</h4>
-                    <p>Key factors that impact user capacity based on capacity planning research and testing:</p>
-                    <div style="overflow-x:auto">
-                        <table class="rec-table">
-                            <thead>
-                                <tr><th>Factor</th><th>Impact on Capacity</th><th>Details</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>Hyperthreading (ON vs OFF)</td><td>+12% to +28%</td><td>Greater benefit at lower core counts (28% at 4-core, 12% at 8-core)</td></tr>
-                                <tr><td>VM vs Bare Metal</td><td>&minus;15% to &minus;20%</td><td>Hypervisor overhead and 10&ndash;20% higher response times</td></tr>
-                                <tr><td>FSLogix vs Roaming Profiles</td><td>+8% capacity, 67% faster logon</td><td>FSLogix: 11.4s avg logon &bull; Roaming: 34.8s avg logon</td></tr>
-                                <tr><td>WS 2025 vs WS 2022</td><td>&minus;5% on WS 2025</td><td>Due to Credential Guard / VBS enabled by default</td></tr>
-                                <tr><td>Real-world usage variability</td><td>Plan for 70% of tested capacity</td><td>Non-uniform usage patterns in production environments</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <h4>9AM logon rate impact</h4>
-                    <p>Peak logon rate significantly affects server performance. Exceeding safe logon rates causes CPU oversubscription and dramatically increased logon times:</p>
-                    <div style="overflow-x:auto">
-                        <table class="rec-table">
-                            <thead>
-                                <tr><th>Server Config</th><th>Logon Rate</th><th>Avg Logon Duration</th><th>CPU Impact</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>4-core</td><td>15 users/min</td><td>6.3 sec</td><td>~50% CPU &mdash; acceptable</td></tr>
-                                <tr class="highlight"><td>4-core</td><td>30 users/min</td><td>62.4 sec</td><td>&gt;80% CPU &mdash; oversubscribed</td></tr>
-                                <tr><td>8-core</td><td>30 users/min</td><td>8.9 sec</td><td>Manageable with extra cores</td></tr>
-                            </tbody>
-                        </table>
                     </div>
                 </section>
 
@@ -1907,6 +2105,20 @@
                     <button class="btn-secondary" onclick="this.style.background='var(--color-warning-bg)'; this.style.borderColor='var(--color-warning)'; this.style.color='var(--color-warning)'; this.textContent='Thanks for feedback'">No</button>
                 </div>
             </section>
+
+            <!-- Sticky action bar -->
+            <div class="sticky-action-bar" id="stickyActionBar">
+                <div class="sticky-action-bar__summary" id="stickyBarSummary">
+                    <span id="stickyBarText">100 users &middot; Multi-session &middot; Medium workload</span>
+                </div>
+                <div class="sticky-action-bar__actions">
+                    <button class="btn-primary" onclick="calculateSizing()">
+                        <svg viewBox="0 0 16 16" style="width:14px;height:14px;fill:currentColor;margin-right:6px;vertical-align:-2px"><path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H4zm1 3a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5A.5.5 0 0 1 5 4zm.5 2.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5zM5 10a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5A.5.5 0 0 1 5 10z"/></svg>
+                        Calculate sizing
+                    </button>
+                    <button class="btn-secondary" onclick="resetForm()" style="font-size:13px;padding:6px 12px;">Reset</button>
+                </div>
+            </div>
         </main>
     </div>
 
@@ -2003,7 +2215,65 @@
             } else {
                 steps[4].classList.add('active');
             }
+
+            // Keep config summary & sticky bar in sync
+            updateConfigSummary();
         }
+
+        // ============================================
+        // Config Summary Strip & Sticky Bar
+        // ============================================
+        function updateConfigSummary() {
+            const users = document.getElementById('concurrentUsers').value;
+            const sessionType = document.querySelector('input[name="sessionType"]:checked');
+            const workload = document.querySelector('input[name="workloadType"]:checked');
+            const gpu = document.querySelector('input[name="gpuType"]:checked');
+            const monitors = document.getElementById('monitorCount').value;
+
+            const sessionLabel = sessionType ? (sessionType.value === 'multi' ? 'Multi-session' : 'Personal') : '—';
+            const workloadLabels = { light: 'Light', medium: 'Medium', heavy: 'Heavy', power: 'Power' };
+            const workloadLabel = workload ? workloadLabels[workload.value] || workload.value : '—';
+            const gpuLabels = { none: 'No GPU', light: 'Light GPU', medium: 'Medium GPU', heavy: 'Heavy GPU' };
+            const gpuLabel = gpu ? gpuLabels[gpu.value] || gpu.value : '—';
+
+            // Update config summary chips
+            const chips = document.querySelectorAll('#configSummary .config-summary__chip');
+            if (chips.length >= 5) {
+                chips[0].textContent = Number(users).toLocaleString() + ' users';
+                chips[1].textContent = sessionLabel;
+                chips[2].textContent = workloadLabel + ' workload';
+                chips[3].textContent = gpuLabel;
+                chips[4].textContent = monitors + ' monitor' + (monitors > 1 ? 's' : '');
+            }
+
+            // Update sticky bar summary text
+            const stickyText = document.getElementById('stickyBarText');
+            if (stickyText) {
+                stickyText.textContent = Number(users).toLocaleString() + ' users \u00B7 ' + sessionLabel + ' \u00B7 ' + workloadLabel + ' workload';
+            }
+        }
+
+        // Sticky bar visibility — show when user scrolls past the first form section
+        (function initStickyBar() {
+            const bar = document.getElementById('stickyActionBar');
+            const resultsEl = document.getElementById('results');
+            const firstSection = document.getElementById('user-environment');
+            if (!bar || !firstSection) return;
+
+            function onScroll() {
+                const sectionTop = firstSection.getBoundingClientRect().top;
+                const resultsVisible = resultsEl && resultsEl.classList.contains('visible');
+                // Show sticky bar once user has scrolled into the form, hide in results
+                if (sectionTop < 0 && !resultsVisible) {
+                    bar.classList.add('visible');
+                } else {
+                    bar.classList.remove('visible');
+                }
+            }
+
+            window.addEventListener('scroll', onScroll, { passive: true });
+            onScroll();
+        })();
 
         // ============================================
         // Active TOC tracking on scroll
@@ -2405,6 +2675,10 @@
             // Show results
             const resultsEl = document.getElementById('results');
             resultsEl.classList.add('visible');
+
+            // Hide sticky action bar (results are now visible)
+            const stickyBar = document.getElementById('stickyActionBar');
+            if (stickyBar) stickyBar.classList.remove('visible');
 
             // Update progress to completed
             document.querySelectorAll('.progress-step').forEach(s => {
