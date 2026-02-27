@@ -909,13 +909,31 @@
         }
 
         /* ============================================
+           Sticky Progress Header
+           ============================================ */
+        .sticky-progress {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            background: var(--color-neutral-background-1);
+            border-bottom: 1px solid var(--color-neutral-stroke-3);
+            margin: 0 calc(-1 * var(--spacing-xl));
+            padding: 0 var(--spacing-xl);
+            transition: box-shadow 0.2s;
+        }
+
+        .sticky-progress.is-stuck {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        /* ============================================
            Progress Steps
            ============================================ */
         .progress-steps {
             display: flex;
             align-items: center;
-            margin-bottom: var(--spacing-xxl);
-            padding: var(--spacing-l) 0;
+            margin-bottom: 0;
+            padding: var(--spacing-l) 0 var(--spacing-s) 0;
         }
 
         .progress-step {
@@ -1332,11 +1350,11 @@
             display: flex;
             flex-wrap: wrap;
             gap: var(--spacing-m);
-            padding: var(--spacing-m) var(--spacing-l);
-            background: var(--color-neutral-background-3);
-            border: 1px solid var(--color-neutral-stroke-3);
-            border-radius: var(--border-radius-medium);
-            margin-bottom: var(--spacing-xxl);
+            padding: var(--spacing-s) 0 var(--spacing-m) 0;
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            margin-bottom: 0;
             font-size: var(--font-size-base-200);
             color: var(--color-neutral-foreground-3);
         }
@@ -1371,10 +1389,18 @@
             .config-summary {
                 gap: var(--spacing-xs);
             }
+            .sticky-progress {
+                margin: 0 calc(-1 * var(--spacing-m));
+                padding: 0 var(--spacing-m);
+            }
         }
 
         /* Print styles */
         @media print {
+            .top-nav, .sub-nav, .sidebar, .site-footer, .btn-group, .theme-toggle, .mobile-menu-toggle, .sticky-action-bar, .sticky-progress {
+                position: static !important;
+                box-shadow: none !important;
+            }
             .top-nav, .sub-nav, .sidebar, .site-footer, .btn-group, .theme-toggle, .mobile-menu-toggle, .sticky-action-bar {
                 display: none !important;
             }
@@ -1479,7 +1505,8 @@
                     <p class="mb-0">This tool provides estimates aligned with <a href="https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/session-host-virtual-machine-sizing-guidelines" target="_blank" style="color: inherit; text-decoration: underline;">Microsoft's session host VM sizing guidelines</a> for Azure Virtual Desktop and Remote Desktop Services. Actual requirements may vary based on your specific applications and usage patterns. We recommend validating with a pilot deployment before production rollout.</p>
                 </div>
 
-                <!-- Progress Steps -->
+                <!-- Sticky Progress Header -->
+                <div class="sticky-progress" id="stickyProgress">
                 <div class="progress-steps" aria-label="Configuration progress">
                     <div class="progress-step active" data-step="1" onclick="document.getElementById('user-config').scrollIntoView({behavior:'smooth'})" title="Jump to Users">
                         <div class="progress-step__number">1</div>
@@ -1515,6 +1542,7 @@
                     <span class="config-summary__chip">No GPU</span>
                     <span class="config-summary__chip">2 monitors</span>
                 </div>
+                </div><!-- /.sticky-progress -->
             </section>
 
             <!-- ==========================================
@@ -2272,6 +2300,26 @@
 
             window.addEventListener('scroll', onScroll, { passive: true });
             onScroll();
+        })();
+
+        // Sticky progress header — add shadow when stuck
+        (function initStickyProgress() {
+            const el = document.getElementById('stickyProgress');
+            if (!el) return;
+
+            const observer = new IntersectionObserver(
+                ([entry]) => {
+                    el.classList.toggle('is-stuck', !entry.isIntersecting);
+                },
+                { threshold: [1], rootMargin: '-1px 0px 0px 0px' }
+            );
+
+            // Observe a sentinel element just above the sticky container
+            const sentinel = document.createElement('div');
+            sentinel.style.height = '1px';
+            sentinel.style.marginBottom = '-1px';
+            el.parentNode.insertBefore(sentinel, el);
+            observer.observe(sentinel);
         })();
 
         // ============================================
