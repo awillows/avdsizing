@@ -1168,7 +1168,7 @@
                 <li><a href="#vm-recommendations">VM recommendations</a></li>
                 <li><a href="#cost-estimate">Cost estimate</a></li>
                 <li><a href="#benchmark-reference">Benchmark reference</a></li>
-                <li><a href="#next-steps">Next steps</a></li>
+                <li><a href="#next-steps">Next steps &amp; references</a></li>
             </ul>
         </aside>
 
@@ -1188,7 +1188,7 @@
             <!-- Title -->
             <section id="overview">
                 <h1>Infrastructure Sizing Tool</h1>
-                <p class="page-meta">Last updated: 02/18/2026 &nbsp;&bull;&nbsp; Interactive tool</p>
+                <p class="page-meta">Last updated: 02/27/2026 &nbsp;&bull;&nbsp; Interactive tool</p>
 
                 <p>Use this interactive sizing tool to determine the optimal infrastructure configuration for your deployment. Configure your user count, workload profiles, graphics requirements, and storage preferences to receive tailored VM recommendations and estimated costs.</p>
 
@@ -1197,7 +1197,7 @@
                         <svg viewBox="0 0 16 16"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 2.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm1.25 8.5h-2.5v-1h.75V8h-.75V7h1.75v4h.75v1z"/></svg>
                         Note
                     </div>
-                    <p class="mb-0">This tool provides estimates based on general best practices, Azure VM sizing guidance, and data from the <strong>Windows Server 2025 Capacity Planning Whitepaper</strong>. Actual requirements may vary based on your specific applications and usage patterns. We recommend validating with a proof-of-concept deployment before production rollout.</p>
+                    <p class="mb-0">This tool provides estimates aligned with <a href="https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/session-host-virtual-machine-sizing-guidelines" target="_blank" style="color: inherit; text-decoration: underline;">Microsoft's session host VM sizing guidelines</a> for Azure Virtual Desktop and Remote Desktop Services. Actual requirements may vary based on your specific applications and usage patterns. We recommend validating with a pilot deployment before production rollout.</p>
                 </div>
 
                 <!-- Progress Steps -->
@@ -1275,7 +1275,7 @@
                                 <label class="radio-card__label" for="multiSession">
                                     <span class="radio-card__icon">&#128101;</span>
                                     <span class="radio-card__title">Multi-session</span>
-                                    <span class="radio-card__desc">Multiple users share VMs. Best for task workers and general productivity. Lower cost per user.</span>
+                                    <span class="radio-card__desc">Multiple users share VMs (pooled host pools). Best for task workers and general productivity. Min 4 vCPUs per VM recommended.</span>
                                 </label>
                             </div>
                             <div class="radio-card">
@@ -1283,7 +1283,7 @@
                                 <label class="radio-card__label" for="singleSession">
                                     <span class="radio-card__icon">&#128100;</span>
                                     <span class="radio-card__title">Single-session</span>
-                                    <span class="radio-card__desc">Dedicated VM per user. Best for power users, developers, or compliance requirements.</span>
+                                    <span class="radio-card__desc">Dedicated VM per user (personal host pools). Best for power users, developers, or compliance requirements.</span>
                                 </label>
                             </div>
                         </div>
@@ -1326,7 +1326,7 @@
                                 <label class="radio-card__label" for="wlLight">
                                     <span class="radio-card__icon">&#128221;</span>
                                     <span class="radio-card__title">Light</span>
-                                    <span class="radio-card__desc">Web browsing, email, simple document editing. ~1 vCPU, 2 GB RAM per user.</span>
+                                    <span class="radio-card__desc">Database entry, command-line interfaces, basic data entry tasks. Up to 6 users per vCPU.</span>
                                 </label>
                             </div>
                             <div class="radio-card">
@@ -1334,7 +1334,7 @@
                                 <label class="radio-card__label" for="wlMedium">
                                     <span class="radio-card__icon">&#128188;</span>
                                     <span class="radio-card__title">Medium</span>
-                                    <span class="radio-card__desc">Office apps, Teams, multiple browser tabs. ~2 vCPUs, 4 GB RAM per user.</span>
+                                    <span class="radio-card__desc">Word, static web pages, database apps. Consultants and market researchers. Up to 4 users per vCPU.</span>
                                 </label>
                             </div>
                             <div class="radio-card">
@@ -1342,7 +1342,7 @@
                                 <label class="radio-card__label" for="wlHeavy">
                                     <span class="radio-card__icon">&#9889;</span>
                                     <span class="radio-card__title">Heavy</span>
-                                    <span class="radio-card__desc">Data analysis, compiling code, heavy multitasking. ~4 vCPUs, 8 GB RAM per user.</span>
+                                    <span class="radio-card__desc">Outlook, PowerPoint, dynamic web pages, software development. Engineers and content creators. Up to 2 users per vCPU.</span>
                                 </label>
                             </div>
                             <div class="radio-card">
@@ -1350,7 +1350,7 @@
                                 <label class="radio-card__label" for="wlPower">
                                     <span class="radio-card__icon">&#128640;</span>
                                     <span class="radio-card__title">Power</span>
-                                    <span class="radio-card__desc">Software development, large datasets, CPU-intensive tasks. ~8 vCPUs, 16 GB RAM per user.</span>
+                                    <span class="radio-card__desc">CAD, CAM, photo/video editing, 3D modeling, machine learning. Graphic designers and researchers. 1 user per vCPU.</span>
                                 </label>
                             </div>
                         </div>
@@ -1362,7 +1362,7 @@
                         <svg viewBox="0 0 16 16"><path d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm11.28-1.78a.75.75 0 0 1 0 1.06l-4 4a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06L6.75 9.69l3.47-3.47a.75.75 0 0 1 1.06 0z"/></svg>
                         Tip
                     </div>
-                    <p class="mb-0">For mixed workload environments, select the profile that matches your <strong>heaviest user group</strong>, then adjust user counts accordingly. You can create multiple host pools with different VM sizes to optimize cost.</p>
+                    <p class="mb-0">For mixed workload environments, select the profile that matches your <strong>heaviest user group</strong>, then adjust user counts accordingly. You can create multiple host pools with different VM sizes to optimise cost. For multi-session, use VMs with <strong>4&ndash;24 vCPUs</strong> &mdash; it&rsquo;s better to use many smaller VMs than a few large ones for resilience and autoscale efficiency.</p>
                 </div>
             </section>
 
@@ -1518,9 +1518,9 @@
                 <div class="callout callout--info">
                     <div class="callout__title">
                         <svg viewBox="0 0 16 16"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 2.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm1.25 8.5h-2.5v-1h.75V8h-.75V7h1.75v4h.75v1z"/></svg>
-                        Based on Microsoft capacity planning research
+                        Capacity planning guidance
                     </div>
-                    <p class="mb-0">The capacity buffer, OS version, and logon rate settings below are informed by the <strong>Windows Server 2025 Capacity Planning Whitepaper</strong>. The whitepaper recommends provisioning <strong>30% additional capacity</strong> for production workloads to absorb real-world usage variability, logon bursts, and non-uniform workload patterns.</p>
+                    <p class="mb-0">The capacity buffer, OS version, and logon rate settings below are informed by <a href="https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/session-host-virtual-machine-sizing-guidelines" target="_blank" style="color: inherit; text-decoration: underline;">Microsoft's sizing guidelines</a>. It is recommended to provision <strong>additional capacity headroom</strong> for production workloads to absorb real-world usage variability, logon bursts, and non-uniform workload patterns.</p>
                 </div>
 
                 <div class="form-section">
@@ -1559,7 +1559,7 @@
                     <div class="form-group">
                         <label for="capacityBuffer">
                             Capacity buffer
-                            <span class="label-hint">(Whitepaper recommends 30% for production workloads)</span>
+                            <span class="label-hint">(Recommended: 30% for production workloads)</span>
                         </label>
                         <div class="range-row">
                             <input type="range" id="capacityBuffer" min="0" max="50" value="30" step="5" 
@@ -1680,14 +1680,14 @@
 
                 <section id="benchmark-reference">
                     <h3>Benchmark reference</h3>
-                    <p>The following reference data is sourced from the <strong>Windows Server 2025 Capacity Planning Whitepaper</strong>, based on the Knowledge Worker scenario (Edge, Word, Excel in continuous loop). Use this to contextualize the sizing recommendations above.</p>
+                    <p>The following reference data is sourced from the <a href="https://download.microsoft.com/download/41af4cc7-8c9d-4c12-b148-d4454c2edaea/Windows%20Server%202025%20Capacity%20Planning%20Whitepaper.pdf" target="_blank" style="color: var(--color-brand-primary);">Windows Server 2025 Capacity Planning Whitepaper</a> (on-premises Remote Desktop Services testing). While based on physical server testing with a Knowledge Worker scenario (Edge, Word, Excel in continuous loop), these benchmarks provide useful context for understanding relative scaling behaviour.</p>
 
                     <div class="callout callout--tip">
                         <div class="callout__title">
                             <svg viewBox="0 0 16 16"><path d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm11.28-1.78a.75.75 0 0 1 0 1.06l-4 4a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06L6.75 9.69l3.47-3.47a.75.75 0 0 1 1.06 0z"/></svg>
                             Tip
                         </div>
-                        <p class="mb-0">These benchmarks use a specific Knowledge Worker workload. Your actual capacity will vary based on your specific applications and usage patterns. The whitepaper recommends loading servers to <strong>70% of tested capacity</strong> and adding a <strong>30% hardware buffer</strong> for real-world conditions.</p>
+                        <p class="mb-0">These benchmarks are from on-premises RDS testing with a specific Knowledge Worker workload. Your actual capacity on Azure VMs will vary. Use these as a supplementary reference alongside the <a href="https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/session-host-virtual-machine-sizing-guidelines" target="_blank" style="color: inherit; text-decoration: underline;">official sizing guidelines</a>. It is recommended to load servers to <strong>70% of tested capacity</strong> and add a <strong>30% hardware buffer</strong> for real-world conditions.</p>
                     </div>
 
                     <h4>CPU capacity scaling</h4>
@@ -1721,7 +1721,7 @@
                     </div>
 
                     <h4>Deployment factors</h4>
-                    <p>Key factors that impact user capacity based on whitepaper test results:</p>
+                    <p>Key factors that impact user capacity based on capacity planning research and testing:</p>
                     <div style="overflow-x:auto">
                         <table class="rec-table">
                             <thead>
@@ -1759,9 +1759,19 @@
                     <ul style="padding-left: var(--spacing-xl); margin-bottom: var(--spacing-xl); color: var(--color-neutral-foreground-2);">
                         <li style="margin-bottom: var(--spacing-s);"><a href="https://learn.microsoft.com/en-us/azure/virtual-desktop/prerequisites" target="_blank" style="color: var(--color-brand-primary);">Review the complete prerequisites for Azure Virtual Desktop</a></li>
                         <li style="margin-bottom: var(--spacing-s);"><a href="https://learn.microsoft.com/en-us/azure/virtual-desktop/create-host-pool" target="_blank" style="color: var(--color-brand-primary);">Deploy Azure Virtual Desktop</a> using the recommended VM configuration</li>
+                        <li style="margin-bottom: var(--spacing-s);">Configure <a href="https://learn.microsoft.com/en-us/azure/virtual-desktop/configure-host-pool-load-balancing" target="_blank" style="color: var(--color-brand-primary);">breadth-first load balancing</a> to evenly distribute users across session hosts</li>
                         <li style="margin-bottom: var(--spacing-s);"><a href="https://azure.microsoft.com/en-us/pricing/calculator/" target="_blank" style="color: var(--color-brand-primary);">Use the Azure Pricing Calculator</a> for detailed cost analysis with your specific licensing</li>
                         <li style="margin-bottom: var(--spacing-s);"><a href="https://learn.microsoft.com/en-us/azure/virtual-desktop/azure-ad-joined-session-hosts" target="_blank" style="color: var(--color-brand-primary);">Configure identity and access management</a> for your session hosts</li>
                         <li style="margin-bottom: var(--spacing-s);"><a href="https://learn.microsoft.com/en-us/azure/virtual-desktop/fslogix-profile-container-configure-azure-files-active-directory" target="_blank" style="color: var(--color-brand-primary);">Set up FSLogix profile containers</a> for optimal user experience</li>
+                        <li style="margin-bottom: var(--spacing-s);"><a href="https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/rds-rdsh-performance-counters" target="_blank" style="color: var(--color-brand-primary);">Use performance counters</a> to monitor User Input Delay (target &lt;200ms) on session hosts</li>
+                    </ul>
+
+                    <h3>References</h3>
+                    <p>The sizing recommendations in this tool are based on the following sources:</p>
+                    <ul style="padding-left: var(--spacing-xl); margin-bottom: var(--spacing-xl); color: var(--color-neutral-foreground-2);">
+                        <li style="margin-bottom: var(--spacing-s);"><a href="https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/session-host-virtual-machine-sizing-guidelines" target="_blank" style="color: var(--color-brand-primary);">Session host virtual machine sizing guidelines</a> &mdash; Primary sizing guidance for Azure Virtual Desktop and Remote Desktop Services (Microsoft Learn)</li>
+                        <li style="margin-bottom: var(--spacing-s);"><a href="https://download.microsoft.com/download/41af4cc7-8c9d-4c12-b148-d4454c2edaea/Windows%20Server%202025%20Capacity%20Planning%20Whitepaper.pdf" target="_blank" style="color: var(--color-brand-primary);">Windows Server 2025 Capacity Planning Whitepaper (PDF)</a> &mdash; Supplementary reference for on-premises Remote Desktop Services capacity planning, covering CPU/memory scaling, hyperthreading, and logon rate benchmarks</li>
+                        <li style="margin-bottom: var(--spacing-s);"><a href="https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/rds-rdsh-performance-counters" target="_blank" style="color: var(--color-brand-primary);">Performance counters for Remote Desktop Session Hosts</a> &mdash; User Input Delay metrics for diagnosing app performance problems</li>
                     </ul>
 
                     <div class="btn-group">
@@ -1915,43 +1925,62 @@
         // ============================================
         // VM Database
         // ============================================
+        // ============================================
+        // VM Database — aligned with MS Learn sizing guidelines
+        // https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/session-host-virtual-machine-sizing-guidelines
+        // ============================================
+
+        // Multi-session VMs: min 8 vCPUs recommended, users-per-vCPU from MS Learn table
+        // Light: 6/vCPU, Medium: 4/vCPU, Heavy: 2/vCPU, Power: 1/vCPU
         const vmDatabase = {
-            // Non-GPU VMs
+            // Multi-session non-GPU — primary (D-series general purpose)
             'D-series': {
-                light: { sku: 'Standard_D2s_v5', vcpus: 2, ram: 8, usersPerVm: 4, costPerMonth: 70 },
-                medium: { sku: 'Standard_D4s_v5', vcpus: 4, ram: 16, usersPerVm: 4, costPerMonth: 140 },
-                heavy: { sku: 'Standard_D8s_v5', vcpus: 8, ram: 32, usersPerVm: 4, costPerMonth: 281 },
-                power: { sku: 'Standard_D16s_v5', vcpus: 16, ram: 64, usersPerVm: 4, costPerMonth: 562 }
+                light: { sku: 'Standard_D8s_v5', vcpus: 8, ram: 16, usersPerVm: 48, costPerMonth: 281 },
+                medium: { sku: 'Standard_D8s_v5', vcpus: 8, ram: 16, usersPerVm: 32, costPerMonth: 281 },
+                heavy: { sku: 'Standard_D8s_v5', vcpus: 8, ram: 16, usersPerVm: 16, costPerMonth: 281 },
+                power: { sku: 'Standard_D16s_v5', vcpus: 16, ram: 64, usersPerVm: 16, costPerMonth: 562 }
             },
-            'D-series (memory-opt)': {
-                light: { sku: 'Standard_E2s_v5', vcpus: 2, ram: 16, usersPerVm: 4, costPerMonth: 92 },
-                medium: { sku: 'Standard_E4s_v5', vcpus: 4, ram: 32, usersPerVm: 4, costPerMonth: 184 },
-                heavy: { sku: 'Standard_E8s_v5', vcpus: 8, ram: 64, usersPerVm: 4, costPerMonth: 368 },
-                power: { sku: 'Standard_E16s_v5', vcpus: 16, ram: 128, usersPerVm: 4, costPerMonth: 736 }
+            // Multi-session non-GPU — alternative (E-series memory-optimised)
+            'E-series (memory-opt)': {
+                light: { sku: 'Standard_E8s_v5', vcpus: 8, ram: 64, usersPerVm: 48, costPerMonth: 368 },
+                medium: { sku: 'Standard_E8s_v5', vcpus: 8, ram: 64, usersPerVm: 32, costPerMonth: 368 },
+                heavy: { sku: 'Standard_E8s_v5', vcpus: 8, ram: 64, usersPerVm: 16, costPerMonth: 368 },
+                power: { sku: 'Standard_E16s_v5', vcpus: 16, ram: 128, usersPerVm: 16, costPerMonth: 736 }
             },
-            // GPU VMs
+            // Single-session non-GPU — personal desktops (MS Learn single-session table)
+            'D-series (personal)': {
+                light: { sku: 'Standard_D2s_v5', vcpus: 2, ram: 8, usersPerVm: 1, costPerMonth: 70 },
+                medium: { sku: 'Standard_D4s_v5', vcpus: 4, ram: 16, usersPerVm: 1, costPerMonth: 140 },
+                heavy: { sku: 'Standard_D8s_v5', vcpus: 8, ram: 32, usersPerVm: 1, costPerMonth: 281 },
+                power: { sku: 'Standard_D16s_v5', vcpus: 16, ram: 64, usersPerVm: 1, costPerMonth: 562 }
+            },
+            // Single-session non-GPU — alternative (memory-optimised personal)
+            'E-series (personal, memory-opt)': {
+                light: { sku: 'Standard_E2s_v5', vcpus: 2, ram: 16, usersPerVm: 1, costPerMonth: 92 },
+                medium: { sku: 'Standard_E4s_v5', vcpus: 4, ram: 32, usersPerVm: 1, costPerMonth: 184 },
+                heavy: { sku: 'Standard_E8s_v5', vcpus: 8, ram: 64, usersPerVm: 1, costPerMonth: 368 },
+                power: { sku: 'Standard_E16s_v5', vcpus: 16, ram: 128, usersPerVm: 1, costPerMonth: 736 }
+            },
+            // GPU VMs — users/VM pre-set per workload (applies to both session types)
             'NV-series (light GPU)': {
-                light: { sku: 'Standard_NV6ads_A10_v5', vcpus: 6, ram: 55, gpu: '1/6 A10', usersPerVm: 4, costPerMonth: 452 },
+                light: { sku: 'Standard_NV6ads_A10_v5', vcpus: 6, ram: 55, gpu: '1/6 A10', usersPerVm: 8, costPerMonth: 452 },
                 medium: { sku: 'Standard_NV12ads_A10_v5', vcpus: 12, ram: 110, gpu: '1/3 A10', usersPerVm: 4, costPerMonth: 904 },
-                heavy: { sku: 'Standard_NV18ads_A10_v5', vcpus: 18, ram: 220, gpu: '1/2 A10', usersPerVm: 4, costPerMonth: 1356 },
-                power: { sku: 'Standard_NV36ads_A10_v5', vcpus: 36, ram: 440, gpu: '1x A10', usersPerVm: 4, costPerMonth: 2712 }
+                heavy: { sku: 'Standard_NV18ads_A10_v5', vcpus: 18, ram: 220, gpu: '1/2 A10', usersPerVm: 3, costPerMonth: 1356 },
+                power: { sku: 'Standard_NV36ads_A10_v5', vcpus: 36, ram: 440, gpu: '1x A10', usersPerVm: 2, costPerMonth: 2712 }
             },
             'NC-series (medium GPU)': {
-                light: { sku: 'Standard_NC4as_T4_v3', vcpus: 4, ram: 28, gpu: '1x T4', usersPerVm: 2, costPerMonth: 526 },
+                light: { sku: 'Standard_NC4as_T4_v3', vcpus: 4, ram: 28, gpu: '1x T4', usersPerVm: 4, costPerMonth: 526 },
                 medium: { sku: 'Standard_NC8as_T4_v3', vcpus: 8, ram: 56, gpu: '1x T4', usersPerVm: 2, costPerMonth: 752 },
                 heavy: { sku: 'Standard_NC16as_T4_v3', vcpus: 16, ram: 110, gpu: '1x T4', usersPerVm: 2, costPerMonth: 1204 },
-                power: { sku: 'Standard_NC64as_T4_v3', vcpus: 64, ram: 440, gpu: '4x T4', usersPerVm: 4, costPerMonth: 4316 }
+                power: { sku: 'Standard_NC64as_T4_v3', vcpus: 64, ram: 440, gpu: '4x T4', usersPerVm: 2, costPerMonth: 4316 }
             },
             'NC-series (heavy GPU)': {
-                light: { sku: 'Standard_NC6s_v3', vcpus: 6, ram: 112, gpu: '1x V100', usersPerVm: 2, costPerMonth: 2205 },
+                light: { sku: 'Standard_NC6s_v3', vcpus: 6, ram: 112, gpu: '1x V100', usersPerVm: 4, costPerMonth: 2205 },
                 medium: { sku: 'Standard_NC12s_v3', vcpus: 12, ram: 224, gpu: '2x V100', usersPerVm: 2, costPerMonth: 4410 },
-                heavy: { sku: 'Standard_NC24s_v3', vcpus: 24, ram: 448, gpu: '4x V100', usersPerVm: 4, costPerMonth: 8820 },
-                power: { sku: 'Standard_NC24s_v3', vcpus: 24, ram: 448, gpu: '4x V100', usersPerVm: 2, costPerMonth: 8820 }
+                heavy: { sku: 'Standard_NC24s_v3', vcpus: 24, ram: 448, gpu: '4x V100', usersPerVm: 2, costPerMonth: 8820 },
+                power: { sku: 'Standard_NC24s_v3', vcpus: 24, ram: 448, gpu: '4x V100', usersPerVm: 1, costPerMonth: 8820 }
             }
         };
-
-        // Single-session users per VM = 1
-        const singleSessionUsersPerVm = 1;
 
         // ============================================
         // Sizing Calculation
@@ -1981,14 +2010,20 @@
             const peakLogonRate = parseInt(document.getElementById('peakLogonRate').value);
 
             // Determine which VM series to recommend
+            // MS Learn: multi-session min 8 vCPUs; single-session uses personal desktop VMs
             let primarySeries, secondarySeries;
             
             if (gpuType === 'none') {
-                primarySeries = 'D-series';
-                secondarySeries = 'D-series (memory-opt)';
+                if (sessionType === 'single') {
+                    primarySeries = 'D-series (personal)';
+                    secondarySeries = 'E-series (personal, memory-opt)';
+                } else {
+                    primarySeries = 'D-series';
+                    secondarySeries = 'E-series (memory-opt)';
+                }
             } else if (gpuType === 'light') {
                 primarySeries = 'NV-series (light GPU)';
-                secondarySeries = 'D-series';
+                secondarySeries = sessionType === 'single' ? 'D-series (personal)' : 'D-series';
             } else if (gpuType === 'medium') {
                 primarySeries = 'NC-series (medium GPU)';
                 secondarySeries = 'NV-series (light GPU)';
@@ -2001,33 +2036,24 @@
             const secondaryVm = vmDatabase[secondarySeries][workloadType];
 
             // Calculate users per VM
+            // Multi-session: use MS Learn users-per-vCPU figures (already in database)
+            // Single-session: always 1 user per VM
             let usersPerVm = primaryVm.usersPerVm;
+            let usersPerVmSecondary = secondaryVm.usersPerVm;
             
             if (sessionType === 'single') {
                 usersPerVm = 1;
-            } else {
-                // Multi-session: adjust based on workload
-                const workloadMultipliers = { light: 2, medium: 1, heavy: 0.75, power: 0.5 };
-                usersPerVm = Math.max(1, Math.round(primaryVm.usersPerVm * workloadMultipliers[workloadType]));
-                
-                // Adjust for high resolution/monitors
-                if (monitors >= 3 || resolution === '4k') {
-                    usersPerVm = Math.max(1, usersPerVm - 1);
-                }
-            }
-
-            let usersPerVmSecondary = secondaryVm.usersPerVm;
-            if (sessionType === 'single') {
                 usersPerVmSecondary = 1;
             } else {
-                const workloadMultipliers = { light: 2, medium: 1, heavy: 0.75, power: 0.5 };
-                usersPerVmSecondary = Math.max(1, Math.round(secondaryVm.usersPerVm * workloadMultipliers[workloadType]));
+                // Multi-session: apply correction factors
+                // Adjust for high resolution/multi-monitor (uses more resources per user)
                 if (monitors >= 3 || resolution === '4k') {
-                    usersPerVmSecondary = Math.max(1, usersPerVmSecondary - 1);
+                    usersPerVm = Math.max(1, Math.round(usersPerVm * 0.85));
+                    usersPerVmSecondary = Math.max(1, Math.round(usersPerVmSecondary * 0.85));
                 }
             }
 
-            // Apply whitepaper correction factors (WS2025 Capacity Planning Whitepaper)
+            // Apply capacity correction factors
             // VMs have 15-20% less capacity vs bare metal due to hypervisor overhead
             const vmOverheadFactor = 0.82;
             // WS2022 supports ~5% more users (WS2025 has Credential Guard/VBS overhead)
@@ -2042,15 +2068,15 @@
             const baseVmsRequired = Math.ceil(concurrentUsers / usersPerVm);
             const vmsRequiredSecondary = Math.ceil(concurrentUsers / usersPerVmSecondary);
 
-            // Apply capacity buffer (whitepaper recommends 30% for production)
+            // Apply capacity buffer (recommended 30% for production)
             const vmsRequired = Math.ceil(baseVmsRequired * (1 + capacityBuffer));
 
             // Add buffer for HA
             const haBuffer = featureHA ? Math.max(1, Math.ceil(vmsRequired * 0.1)) : 0;
             const totalVms = vmsRequired + haBuffer;
 
-            // Logon rate assessment (based on whitepaper 9AM logon data)
-            // Whitepaper: 4-core handles 15 users/min safely → ~3.75 users/min per vCPU pair
+            // Logon rate assessment (peak logon is CPU-intensive per MS Learn)
+            // ~3.75 users/min per vCPU pair is a safe threshold
             const perVmLogonRate = peakLogonRate / totalVms;
             const safeLogonRatePerVm = primaryVm.vcpus * 1.875;
             const logonRateOk = perVmLogonRate <= safeLogonRatePerVm;
@@ -2151,7 +2177,7 @@
                         <svg viewBox="0 0 16 16"><path d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm11.28-1.78a.75.75 0 0 1 0 1.06l-4 4a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06L6.75 9.69l3.47-3.47a.75.75 0 0 1 1.06 0z"/></svg>
                         Capacity planning factors applied
                     </div>
-                    <p style="margin-bottom: var(--spacing-s);">Based on the <strong>Windows Server 2025 Capacity Planning Whitepaper</strong>, the following adjustments have been applied:</p>
+                    <p style="margin-bottom: var(--spacing-s);">Based on <a href="https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/session-host-virtual-machine-sizing-guidelines" target="_blank" style="color: inherit; text-decoration: underline;">Microsoft's session host VM sizing guidelines</a>, the following adjustments have been applied:</p>
                     <ul style="padding-left: var(--spacing-xl); margin: 0; color: var(--color-neutral-foreground-2);">
                         ${sessionType === 'multi' ? '<li><strong>VM overhead factor (0.82x):</strong> ~18% capacity reduction vs bare metal due to hypervisor overhead</li>' : ''}
                         ${osVersion === 'ws2025' ? '<li><strong>Windows Server 2025:</strong> Credential Guard / VBS overhead factored into baseline</li>' : '<li><strong>Windows Server 2022:</strong> +5% capacity benefit vs WS 2025 applied</li>'}
@@ -2167,7 +2193,7 @@
                         <svg viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0l-6.857 11.667c-.457.778.092 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>
                         9AM logon rate warning
                     </div>
-                    <p class="mb-0">Your expected peak logon rate of <strong>${peakLogonRate} users/min</strong> across ${totalVms} VMs results in ~${perVmLogonRate.toFixed(1)} logons/min per VM. Based on whitepaper data, this may exceed safe capacity for ${primaryVm.vcpus}-vCPU VMs, potentially causing extended logon times (&gt;60 seconds). Consider adding more session hosts or staggering logon windows.</p>
+                    <p class="mb-0">Your expected peak logon rate of <strong>${peakLogonRate} users/min</strong> across ${totalVms} VMs results in ~${perVmLogonRate.toFixed(1)} logons/min per VM. Based on sizing guidelines, this may exceed safe capacity for ${primaryVm.vcpus}-vCPU VMs, potentially causing extended logon times (&gt;60 seconds). Consider adding more session hosts, using breadth-first load balancing, or staggering logon windows.</p>
                 </div>`;
             } else {
                 factorsHTML += `
@@ -2176,7 +2202,7 @@
                         <svg viewBox="0 0 16 16"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 2.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm1.25 8.5h-2.5v-1h.75V8h-.75V7h1.75v4h.75v1z"/></svg>
                         9AM logon rate assessment
                     </div>
-                    <p class="mb-0">Your expected peak logon rate of <strong>${peakLogonRate} users/min</strong> across ${totalVms} VMs (~${perVmLogonRate.toFixed(1)} logons/min per VM) is within acceptable limits for ${primaryVm.vcpus}-vCPU VMs based on whitepaper benchmarks.</p>
+                    <p class="mb-0">Your expected peak logon rate of <strong>${peakLogonRate} users/min</strong> across ${totalVms} VMs (~${perVmLogonRate.toFixed(1)} logons/min per VM) is within acceptable limits for ${primaryVm.vcpus}-vCPU VMs. Consider using breadth-first load balancing to evenly distribute users across session hosts.</p>
                 </div>`;
             }
 
@@ -2386,7 +2412,7 @@ FEATURES
   Defender for Cloud:    ${r.featureDefender ? 'Yes' : 'No'}
   Autoscale:             ${r.featureAutoscale ? 'Yes' : 'No'}
 
-CAPACITY PLANNING FACTORS (WS2025 Whitepaper)
+CAPACITY PLANNING FACTORS (MS Learn Sizing Guidelines)
 ─────────────────────────────────
   VM Overhead Factor:    0.82x (18% reduction vs bare metal)
   OS Version Factor:     ${r.osVersion === 'ws2025' ? '1.0 (WS2025 baseline)' : '1.05 (+5% capacity for WS2022)'}
@@ -2394,9 +2420,10 @@ CAPACITY PLANNING FACTORS (WS2025 Whitepaper)
   Logon Rate Status:     ${r.logonRateOk ? 'Within safe limits' : 'WARNING: May exceed safe per-VM logon rate'}
 
 ================================================================================
-  Note: These are estimates informed by the WS2025 Capacity Planning Whitepaper.
+  Note: These are estimates aligned with Microsoft's session host VM sizing guidelines.
   Use the Azure Pricing Calculator for precise quotes.
   https://azure.microsoft.com/en-us/pricing/calculator/
+  Sizing guidelines: https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/session-host-virtual-machine-sizing-guidelines
 ================================================================================
 `.trim();
 
