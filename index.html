@@ -912,18 +912,38 @@
            Sticky Progress Header
            ============================================ */
         .sticky-progress {
-            position: sticky;
-            top: 0;
             z-index: 40;
             background: var(--color-neutral-background-1);
-            border-bottom: 1px solid var(--color-neutral-stroke-3);
-            margin: 0 calc(-1 * var(--spacing-xl));
-            padding: 0 var(--spacing-xl);
-            transition: box-shadow 0.2s;
+            border-bottom: 1px solid transparent;
+            padding: 0;
+            transition: box-shadow 0.2s, border-color 0.2s;
         }
 
-        .sticky-progress.is-stuck {
+        .sticky-progress.is-pinned {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            border-bottom-color: var(--color-neutral-stroke-3);
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 0 var(--spacing-xxxl);
+        }
+
+        /* Reserve space when pinned so content doesn't jump */
+        .sticky-progress-placeholder {
+            display: none;
+        }
+
+        .sticky-progress-placeholder.active {
+            display: block;
+        }
+
+        /* Center within page-layout width when fixed */
+        .sticky-progress.is-pinned > .progress-steps,
+        .sticky-progress.is-pinned > .config-summary {
+            max-width: var(--content-max-width);
+            margin-left: auto;
+            margin-right: auto;
         }
 
         /* ============================================
@@ -1390,19 +1410,22 @@
                 gap: var(--spacing-xs);
             }
             .sticky-progress {
-                margin: 0 calc(-1 * var(--spacing-m));
+                margin: 0;
+                padding: 0;
+            }
+            .sticky-progress.is-pinned {
                 padding: 0 var(--spacing-m);
             }
         }
 
         /* Print styles */
         @media print {
-            .top-nav, .sub-nav, .sidebar, .site-footer, .btn-group, .theme-toggle, .mobile-menu-toggle, .sticky-action-bar, .sticky-progress {
-                position: static !important;
-                box-shadow: none !important;
-            }
             .top-nav, .sub-nav, .sidebar, .site-footer, .btn-group, .theme-toggle, .mobile-menu-toggle, .sticky-action-bar {
                 display: none !important;
+            }
+            .sticky-progress {
+                position: static !important;
+                box-shadow: none !important;
             }
             .page-layout { display: block; }
             .content { max-width: 100%; padding: 0; }
@@ -1507,6 +1530,7 @@
             </section>
 
                 <!-- Sticky Progress Header -->
+                <div class="sticky-progress-placeholder" id="stickyProgressPlaceholder"></div>
                 <div class="sticky-progress" id="stickyProgress">
                 <div class="progress-steps" aria-label="Configuration progress">
                     <div class="progress-step active" data-step="1" onclick="document.getElementById('user-config').scrollIntoView({behavior:'smooth'})" title="Jump to Users">
@@ -2302,24 +2326,46 @@
             onScroll();
         })();
 
-        // Sticky progress header — add shadow when stuck
+        // Sticky progress header — pin to top on scroll
         (function initStickyProgress() {
             const el = document.getElementById('stickyProgress');
-            if (!el) return;
+            const placeholder = document.getElementById('stickyProgressPlaceholder');
+            if (!el || !placeholder) return;
 
-            const observer = new IntersectionObserver(
-                ([entry]) => {
-                    el.classList.toggle('is-stuck', !entry.isIntersecting);
-                },
-                { threshold: [1], rootMargin: '-1px 0px 0px 0px' }
-            );
+            let pinOffset = 0;
 
-            // Observe a sentinel element just above the sticky container
-            const sentinel = document.createElement('div');
-            sentinel.style.height = '1px';
-            sentinel.style.marginBottom = '-1px';
-            el.parentNode.insertBefore(sentinel, el);
-            observer.observe(sentinel);
+            function measure() {
+                // Get the natural top offset when not pinned
+                if (!el.classList.contains('is-pinned')) {
+                    pinOffset = el.getBoundingClientRect().top + window.scrollY;
+                }
+            }
+
+            function onScroll() {
+                if (window.scrollY >= pinOffset) {
+                    if (!el.classList.contains('is-pinned')) {
+                        // Set placeholder height to prevent content jump
+                        placeholder.style.height = el.offsetHeight + 'px';
+                        placeholder.classList.add('active');
+                        el.classList.add('is-pinned');
+                    }
+                } else {
+                    if (el.classList.contains('is-pinned')) {
+                        el.classList.remove('is-pinned');
+                        placeholder.classList.remove('active');
+                    }
+                }
+            }
+
+            measure();
+            window.addEventListener('scroll', onScroll, { passive: true });
+            window.addEventListener('resize', () => {
+                el.classList.remove('is-pinned');
+                placeholder.classList.remove('active');
+                measure();
+                onScroll();
+            });
+            onScroll();
         })();
 
         // ============================================
