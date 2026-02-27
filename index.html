@@ -1000,6 +1000,104 @@
         }
 
         /* ============================================
+           Tabs (Fluent 2 Pivot style)
+           ============================================ */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--color-neutral-stroke-2);
+            margin-bottom: var(--spacing-xl);
+            gap: 0;
+        }
+
+        .tab-btn {
+            padding: var(--spacing-m) var(--spacing-xl);
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            font-family: var(--font-family-base);
+            font-size: var(--font-size-base-300);
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-neutral-foreground-3);
+            transition: color 0.15s, border-color 0.15s;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: var(--color-neutral-foreground-1);
+        }
+
+        .tab-btn.active {
+            color: var(--color-brand-primary);
+            border-bottom-color: var(--color-brand-primary);
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        /* Methodology step cards */
+        .method-step {
+            background: var(--color-neutral-background-2);
+            border: 1px solid var(--color-neutral-stroke-3);
+            border-radius: var(--radius-m);
+            padding: var(--spacing-l) var(--spacing-xl);
+            margin-bottom: var(--spacing-l);
+        }
+
+        .method-step__num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--color-brand-primary);
+            color: #fff;
+            font-size: var(--font-size-base-100);
+            font-weight: var(--font-weight-bold);
+            margin-right: var(--spacing-s);
+            flex-shrink: 0;
+        }
+
+        .method-step__title {
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-neutral-foreground-1);
+            margin-bottom: var(--spacing-s);
+            display: flex;
+            align-items: center;
+        }
+
+        .method-step__formula {
+            font-family: var(--font-family-mono);
+            font-size: var(--font-size-base-200);
+            background: var(--color-neutral-background-3);
+            border: 1px solid var(--color-neutral-stroke-3);
+            border-radius: var(--radius-s);
+            padding: var(--spacing-m) var(--spacing-l);
+            margin: var(--spacing-s) 0;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            line-height: 1.8;
+        }
+
+        .method-step__note {
+            font-size: var(--font-size-base-200);
+            color: var(--color-neutral-foreground-3);
+            margin-top: var(--spacing-s);
+        }
+
+        .method-source {
+            font-size: var(--font-size-base-200);
+            color: var(--color-neutral-foreground-3);
+            font-style: italic;
+        }
+
+        /* ============================================
            Responsive
            ============================================ */
         .mobile-menu-toggle {
@@ -1166,6 +1264,7 @@
                 <li><a href="#additional-options">Additional options</a></li>
                 <li><a href="#results-section">Sizing results</a></li>
                 <li><a href="#vm-recommendations">VM recommendations</a></li>
+                <li><a href="#tab-methodology">How we calculate</a></li>
                 <li><a href="#cost-estimate">Cost estimate</a></li>
                 <li><a href="#benchmark-reference">Benchmark reference</a></li>
                 <li><a href="#next-steps">Next steps &amp; references</a></li>
@@ -1631,8 +1730,21 @@
                         <!-- Populated by JS -->
                     </div>
 
-                    <div id="appliedFactors">
-                        <!-- Populated by JS -->
+                    <div class="tabs" role="tablist">
+                        <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-results" onclick="switchTab('results')">Results</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-methodology" onclick="switchTab('methodology')">How we calculate</button>
+                    </div>
+
+                    <div id="tab-results" class="tab-panel active" role="tabpanel">
+                        <div id="appliedFactors">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <div id="tab-methodology" class="tab-panel" role="tabpanel">
+                        <div id="methodologyContent">
+                            <!-- Populated by JS -->
+                        </div>
                     </div>
                 </section>
 
@@ -2275,6 +2387,21 @@
 
             document.getElementById('costBreakdown').innerHTML = costHTML;
 
+            // Populate methodology tab
+            renderMethodology({
+                sessionType, workloadType, gpuType, primarySeries, secondarySeries,
+                primaryVm, secondaryVm, concurrentUsers, monitors, resolution,
+                usersPerVm, usersPerVmSecondary, vmOverheadFactor, osVersionFactor,
+                osVersion, baseVmsRequired, vmsRequiredSecondary, capacityBuffer,
+                vmsRequired, haBuffer, totalVms, featureHA, peakLogonRate,
+                perVmLogonRate, safeLogonRatePerVm, logonRateOk,
+                regionMultiplier, region, peakHours, autoscaleSavings,
+                featureAutoscale, vmMonthlyCost, profileStorageCost,
+                osDiskTotalCost, additionalCost, totalMonthlyCost, costPerUser,
+                totalUsers, profileSize, totalProfileStorageGB, profileStorage,
+                redundancy, redundancyMultiplier, storageCostPerGB, osDiskCostPerVM, osDiskType
+            });
+
             // Show results
             const resultsEl = document.getElementById('results');
             resultsEl.classList.add('visible');
@@ -2308,6 +2435,193 @@
 
         function formatNumber(num) {
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        // ============================================
+        // Tab Switching
+        // ============================================
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.setAttribute('aria-selected', 'false');
+            });
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            document.querySelector(`[aria-controls="tab-${tabName}"]`).classList.add('active');
+            document.querySelector(`[aria-controls="tab-${tabName}"]`).setAttribute('aria-selected', 'true');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        // ============================================
+        // Methodology Renderer — show your working
+        // ============================================
+        function renderMethodology(d) {
+            const usersPerVcpu = { light: 6, medium: 4, heavy: 2, power: 1 };
+            const baseUsersPerVm = d.primaryVm.vcpus * usersPerVcpu[d.workloadType];
+
+            // Build the step-by-step
+            let html = `
+            <div class="callout callout--info" style="margin-bottom: var(--spacing-xl);">
+                <div class="callout__title">
+                    <svg viewBox="0 0 16 16"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 2.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm1.25 8.5h-2.5v-1h.75V8h-.75V7h1.75v4h.75v1z"/></svg>
+                    Full calculation transparency
+                </div>
+                <p class="mb-0">Every number on the Results tab is derived from the formulas below. No AI or dynamic adjustment is used — the logic is deterministic and based entirely on <a href="https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/session-host-virtual-machine-sizing-guidelines" target="_blank" style="color: inherit; text-decoration: underline;">Microsoft's published sizing guidelines</a>. You can verify each step independently.</p>
+            </div>`;
+
+            // Step 1: VM Selection
+            html += `
+            <div class="method-step">
+                <div class="method-step__title"><span class="method-step__num">1</span>VM selection</div>
+                <p>The VM SKU is selected from a lookup table based on your <strong>session type</strong> (${d.sessionType === 'multi' ? 'multi-session' : 'single-session'}) and <strong>GPU requirement</strong> (${d.gpuType === 'none' ? 'no GPU' : d.gpuType + ' GPU'}).</p>
+                <div class="method-step__formula">Selected: <strong>${d.primarySeries}</strong> → ${d.primaryVm.sku}
+  ${d.primaryVm.vcpus} vCPUs, ${d.primaryVm.ram} GB RAM${d.primaryVm.gpu ? ', ' + d.primaryVm.gpu + ' GPU' : ''}</div>
+                <p class="method-step__note">Multi-session VMs use a minimum of 8 vCPUs per <a href="https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/session-host-virtual-machine-sizing-guidelines#multi-session-session-host-sizing-recommendations" target="_blank" style="color: var(--color-brand-primary);">MS Learn guidance</a>. Single-session uses dedicated personal desktop VMs sized to workload.</p>
+            </div>`;
+
+            // Step 2: Users per VM
+            if (d.sessionType === 'multi') {
+                const monitorPenalty = (d.monitors >= 3 || d.resolution === '4k');
+                const afterMonitor = monitorPenalty ? Math.max(1, Math.round(baseUsersPerVm * 0.85)) : baseUsersPerVm;
+
+                html += `
+            <div class="method-step">
+                <div class="method-step__title"><span class="method-step__num">2</span>Users per VM (multi-session)</div>
+                <p>Based on the MS Learn sizing table, the maximum users per vCPU for <strong>${d.workloadType}</strong> workloads is <strong>${usersPerVcpu[d.workloadType]}</strong>.</p>
+                <div class="method-step__formula">Base users/VM = vCPUs × users-per-vCPU
+  = ${d.primaryVm.vcpus} × ${usersPerVcpu[d.workloadType]}
+  = <strong>${baseUsersPerVm} users</strong>
+${monitorPenalty ? `\nMulti-monitor/4K penalty (×0.85):\n  = round(${baseUsersPerVm} × 0.85)\n  = <strong>${afterMonitor} users</strong>` : ''}
+VM overhead factor (virtualisation costs 15-20%):
+  = round(${monitorPenalty ? afterMonitor : baseUsersPerVm} × ${d.vmOverheadFactor})
+  = ${Math.max(1, Math.round((monitorPenalty ? afterMonitor : baseUsersPerVm) * d.vmOverheadFactor))} users
+${d.osVersion !== 'ws2025' ? `\nOS version factor (WS2022 +5%):\n  = round(${Math.max(1, Math.round((monitorPenalty ? afterMonitor : baseUsersPerVm) * d.vmOverheadFactor))} × ${d.osVersionFactor})\n  = ${d.usersPerVm} users` : `\nOS version: WS2025 (baseline, factor = 1.0)`}
+
+<strong>Final users/VM = ${d.usersPerVm}</strong></div>
+                <p class="method-source">Source: <a href="https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/session-host-virtual-machine-sizing-guidelines#multi-session-session-host-sizing-recommendations" target="_blank" style="color: var(--color-brand-primary);">Multi-session sizing recommendations table</a> — Light: 6/vCPU, Medium: 4/vCPU, Heavy: 2/vCPU, Power: 1/vCPU</p>
+            </div>`;
+            } else {
+                html += `
+            <div class="method-step">
+                <div class="method-step__title"><span class="method-step__num">2</span>Users per VM (single-session)</div>
+                <p>In a single-session (personal host pool) deployment, each user gets a dedicated VM.</p>
+                <div class="method-step__formula">Users/VM = <strong>1</strong> (always)</div>
+                <p class="method-source">Source: <a href="https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/session-host-virtual-machine-sizing-guidelines#single-session-session-host-sizing-recommendations" target="_blank" style="color: var(--color-brand-primary);">Single-session sizing recommendations</a></p>
+            </div>`;
+            }
+
+            // Step 3: Base VM count
+            html += `
+            <div class="method-step">
+                <div class="method-step__title"><span class="method-step__num">3</span>Base VM count</div>
+                <p>Divide concurrent users by users per VM, rounding up to ensure capacity.</p>
+                <div class="method-step__formula">Base VMs = ceil(concurrent users ÷ users/VM)
+  = ceil(${d.concurrentUsers} ÷ ${d.usersPerVm})
+  = <strong>${d.baseVmsRequired} VMs</strong></div>
+            </div>`;
+
+            // Step 4: Capacity buffer
+            html += `
+            <div class="method-step">
+                <div class="method-step__title"><span class="method-step__num">4</span>Capacity buffer (+${Math.round(d.capacityBuffer * 100)}%)</div>
+                <p>A production buffer absorbs real-world usage variability, logon bursts, and non-uniform workload patterns.</p>
+                <div class="method-step__formula">Buffered VMs = ceil(base VMs × (1 + buffer%))
+  = ceil(${d.baseVmsRequired} × ${(1 + d.capacityBuffer).toFixed(2)})
+  = <strong>${d.vmsRequired} VMs</strong></div>
+                <p class="method-step__note">${d.capacityBuffer > 0 ? 'Microsoft recommends planning for headroom to accommodate unexpected spikes in user activity.' : 'No buffer applied — consider adding 20-30% for production.'}</p>
+            </div>`;
+
+            // Step 5: HA buffer
+            if (d.featureHA) {
+                html += `
+            <div class="method-step">
+                <div class="method-step__title"><span class="method-step__num">5</span>High availability buffer</div>
+                <p>Additional VMs for availability zone failover (10% of buffered count, minimum 1).</p>
+                <div class="method-step__formula">HA VMs = max(1, ceil(${d.vmsRequired} × 0.10))
+  = <strong>${d.haBuffer} VM(s)</strong>
+
+Total VMs = ${d.vmsRequired} + ${d.haBuffer} = <strong>${d.totalVms} VMs</strong></div>
+            </div>`;
+            } else {
+                html += `
+            <div class="method-step">
+                <div class="method-step__title"><span class="method-step__num">5</span>Total VMs</div>
+                <div class="method-step__formula">Total VMs = ${d.vmsRequired} (no HA buffer)
+  = <strong>${d.totalVms} VMs</strong></div>
+            </div>`;
+            }
+
+            // Step 6: Logon rate check
+            const stepNum = 6;
+            html += `
+            <div class="method-step">
+                <div class="method-step__title"><span class="method-step__num">${stepNum}</span>Peak logon rate assessment</div>
+                <p>High concurrent logons are CPU-intensive. We check whether the per-VM logon rate stays within safe limits.</p>
+                <div class="method-step__formula">Per-VM logon rate = peak logons/min ÷ total VMs
+  = ${d.peakLogonRate} ÷ ${d.totalVms}
+  = <strong>${d.perVmLogonRate.toFixed(1)} logons/min per VM</strong>
+
+Safe threshold = vCPUs × 1.875 logons/min per vCPU pair
+  = ${d.primaryVm.vcpus} × 1.875
+  = <strong>${d.safeLogonRatePerVm.toFixed(1)} logons/min</strong>
+
+${d.perVmLogonRate.toFixed(1)} ${d.logonRateOk ? '≤' : '>'} ${d.safeLogonRatePerVm.toFixed(1)} → <strong>${d.logonRateOk ? '✓ Within safe limits' : '⚠ Exceeds safe threshold'}</strong></div>
+                <p class="method-source">Source: <a href="https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/session-host-virtual-machine-sizing-guidelines#key-factors-affecting-capacity-and-performance" target="_blank" style="color: var(--color-brand-primary);">User logon impact — key factors affecting capacity</a></p>
+            </div>`;
+
+            // Step 7: Cost calculation
+            const regionNames = {
+                'eastus': 'East US (1.0×)', 'westus2': 'West US 2 (1.0×)', 'westeurope': 'West Europe (1.12×)',
+                'northeurope': 'North Europe (1.08×)', 'uksouth': 'UK South (1.10×)', 'australiaeast': 'Australia East (1.20×)',
+                'southeastasia': 'Southeast Asia (1.05×)', 'japaneast': 'Japan East (1.15×)'
+            };
+            html += `
+            <div class="method-step">
+                <div class="method-step__title"><span class="method-step__num">7</span>Cost estimate</div>
+                <p>Costs are calculated from publicly available Azure pay-as-you-go pricing with a regional multiplier.</p>
+                <div class="method-step__formula"><strong>Compute</strong>
+  = totalVMs × VM cost × region multiplier${d.featureAutoscale ? ' × (1 − autoscale savings)' : ''}
+  = ${d.totalVms} × $${formatNumber(d.primaryVm.costPerMonth)}/mo × ${d.regionMultiplier}${d.featureAutoscale ? ` × ${(1 - d.autoscaleSavings).toFixed(2)}` : ''}
+  = <strong>$${formatNumber(Math.round(d.vmMonthlyCost))}/mo</strong>
+
+<strong>OS Disks</strong>
+  = ${d.totalVms} VMs × $${d.osDiskCostPerVM}/mo (${d.osDiskType.replace(/-/g, ' ')})
+  = <strong>$${formatNumber(Math.round(d.osDiskTotalCost))}/mo</strong>
+
+<strong>Profile Storage</strong>
+  = ${formatNumber(d.totalUsers)} users × ${d.profileSize} GB = ${formatNumber(d.totalProfileStorageGB)} GB
+  × $${d.storageCostPerGB}/GB (${d.profileStorage.replace(/-/g, ' ')})
+  × ${d.redundancyMultiplier} (${d.redundancy.toUpperCase()} redundancy)
+  = <strong>$${formatNumber(Math.round(d.profileStorageCost))}/mo</strong>
+
+<strong>Total</strong> = $${formatNumber(Math.round(d.vmMonthlyCost))} + $${formatNumber(Math.round(d.osDiskTotalCost))} + $${formatNumber(Math.round(d.profileStorageCost))} + $${formatNumber(Math.round(d.additionalCost))} additional
+  = <strong>$${formatNumber(Math.round(d.totalMonthlyCost))}/mo</strong>  (~$${formatNumber(Math.round(d.costPerUser))}/user/month)</div>
+                <p class="method-step__note">Region: ${regionNames[d.region] || d.region}. Prices are estimates — use the <a href="https://azure.microsoft.com/en-us/pricing/calculator/" target="_blank" style="color: var(--color-brand-primary);">Azure Pricing Calculator</a> for precise quotes.</p>
+            </div>`;
+
+            // Summary table of key values
+            html += `
+            <h4>Summary of values used</h4>
+            <div style="overflow-x:auto">
+                <table class="rec-table">
+                    <thead><tr><th>Parameter</th><th>Value</th><th>Source</th></tr></thead>
+                    <tbody>
+                        <tr><td>Session type</td><td>${d.sessionType === 'multi' ? 'Multi-session (pooled)' : 'Single-session (personal)'}</td><td>User input</td></tr>
+                        <tr><td>Workload profile</td><td>${d.workloadType.charAt(0).toUpperCase() + d.workloadType.slice(1)}</td><td>User input</td></tr>
+                        <tr><td>Concurrent users</td><td>${formatNumber(d.concurrentUsers)}</td><td>User input</td></tr>
+                        <tr><td>VM SKU</td><td><code style="font-family:var(--font-family-mono);background:var(--color-neutral-background-3);padding:2px 6px;border-radius:3px;font-size:12px;">${d.primaryVm.sku}</code></td><td>Lookup table</td></tr>
+                        ${d.sessionType === 'multi' ? `<tr><td>Users per vCPU</td><td>${usersPerVcpu[d.workloadType]}</td><td><a href="https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/session-host-virtual-machine-sizing-guidelines#multi-session-session-host-sizing-recommendations" target="_blank" style="color: var(--color-brand-primary);">MS Learn sizing table</a></td></tr>` : ''}
+                        <tr><td>VM overhead factor</td><td>0.82× (18% reduction)</td><td><a href="https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/session-host-virtual-machine-sizing-guidelines#key-factors-affecting-capacity-and-performance" target="_blank" style="color: var(--color-brand-primary);">Virtualisation overhead</a></td></tr>
+                        <tr><td>OS version factor</td><td>${d.osVersion === 'ws2025' ? '1.0× (baseline)' : '1.05× (+5%)'}</td><td>WS2025 Credential Guard/VBS baseline</td></tr>
+                        <tr><td>Final users/VM</td><td>${d.usersPerVm}</td><td>Calculated (step 2)</td></tr>
+                        <tr><td>Capacity buffer</td><td>+${Math.round(d.capacityBuffer * 100)}%</td><td>User input (recommended: 30%)</td></tr>
+                        <tr><td>Total VMs</td><td>${d.totalVms}</td><td>Calculated (steps 3–5)</td></tr>
+                    </tbody>
+                </table>
+            </div>`;
+
+            document.getElementById('methodologyContent').innerHTML = html;
         }
 
         // ============================================
