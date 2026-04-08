@@ -1750,7 +1750,7 @@
                             <option value="3">3 monitors</option>
                             <option value="4">4 monitors</option>
                         </select>
-                        <span class="label-hint" style="display:block; margin-top: var(--spacing-xs);">Each additional monitor increases GPU frame encoding overhead, memory bandwidth, and network throughput per session. Configurations with 3+ monitors or 4K resolution apply a 15% capacity reduction per VM.</span>
+                        <span class="label-hint" style="display:block; margin-top: var(--spacing-xs);">Additional monitors increase GPU encoding overhead, memory bandwidth, and network throughput per session. Microsoft recommends validating multi-monitor and high-resolution configurations with a <a href="https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/session-host-virtual-machine-sizing-guidelines#capacity-planning" target="_blank" style="color: inherit; text-decoration: underline;">pilot deployment</a> to determine actual capacity impact for your workloads.</span>
                     </div>
 
                     <div class="form-group">
@@ -2499,12 +2499,8 @@
                 usersPerVm = 1;
                 usersPerVmSecondary = 1;
             } else {
-                // Multi-session: apply correction factors
-                // Adjust for high resolution/multi-monitor (uses more resources per user)
-                if (monitors >= 3 || resolution === '4k') {
-                    usersPerVm = Math.max(1, Math.round(usersPerVm * 0.85));
-                    usersPerVmSecondary = Math.max(1, Math.round(usersPerVmSecondary * 0.85));
-                }
+                // Multi-session: no automatic penalty applied for monitors/resolution
+                // Microsoft recommends pilot testing to determine actual impact
             }
 
             // Apply capacity correction factors
@@ -2860,8 +2856,6 @@
 
             // Step 2: Users per VM
             if (d.sessionType === 'multi') {
-                const monitorPenalty = (d.monitors >= 3 || d.resolution === '4k');
-                const afterMonitor = monitorPenalty ? Math.max(1, Math.round(baseUsersPerVm * 0.85)) : baseUsersPerVm;
 
                 html += `
             <div class="method-step">
@@ -2870,11 +2864,11 @@
                 <div class="method-step__formula">Base users/VM = vCPUs × users-per-vCPU
   = ${d.primaryVm.vcpus} × ${usersPerVcpu[d.workloadType]}
   = <strong>${baseUsersPerVm} users</strong>
-${monitorPenalty ? `\nMulti-monitor/4K penalty (×0.85):\n  = round(${baseUsersPerVm} × 0.85)\n  = <strong>${afterMonitor} users</strong>` : ''}
+
 VM overhead factor (virtualisation costs 15-20%):
-  = round(${monitorPenalty ? afterMonitor : baseUsersPerVm} × ${d.vmOverheadFactor})
-  = ${Math.max(1, Math.round((monitorPenalty ? afterMonitor : baseUsersPerVm) * d.vmOverheadFactor))} users
-${!['win11ms','win11','ws2025'].includes(d.osVersion) ? `\nOS version factor (+5% — no default VBS overhead):\n  = round(${Math.max(1, Math.round((monitorPenalty ? afterMonitor : baseUsersPerVm) * d.vmOverheadFactor))} × ${d.osVersionFactor})\n  = ${d.usersPerVm} users` : `\nOS version: ${document.getElementById('osVersion').selectedOptions[0].text} (VBS baseline, factor = 1.0)`}
+  = round(${baseUsersPerVm} × ${d.vmOverheadFactor})
+  = ${Math.max(1, Math.round(baseUsersPerVm * d.vmOverheadFactor))} users
+${!['win11ms','win11','ws2025'].includes(d.osVersion) ? `\nOS version factor (+5% — no default VBS overhead):\n  = round(${Math.max(1, Math.round(baseUsersPerVm * d.vmOverheadFactor))} × ${d.osVersionFactor})\n  = ${d.usersPerVm} users` : `\nOS version: ${document.getElementById('osVersion').selectedOptions[0].text} (VBS baseline, factor = 1.0)`}
 
 <strong>Final users/VM = ${d.usersPerVm}</strong></div>
                 <p class="method-source">Source: <a href="https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/session-host-virtual-machine-sizing-guidelines#multi-session-session-host-sizing-recommendations" target="_blank" style="color: var(--color-brand-primary);">Multi-session sizing recommendations table</a> — Light: 6/vCPU, Medium: 4/vCPU, Heavy: 2/vCPU, Power: 1/vCPU</p>
