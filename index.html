@@ -1857,7 +1857,7 @@
 
                     <div class="form-group">
                         <label for="region">Azure region</label>
-                        <select id="region" onchange="updateProgress()">
+                        <select id="region" onchange="fetchPricesForRegion(this.value); updateProgress()">
                             <option value="eastus" selected>East US</option>
                             <option value="westus2">West US 2</option>
                             <option value="westeurope">West Europe</option>
@@ -2009,7 +2009,8 @@
 
                 <section id="cost-estimate">
                     <h3>Cost estimate</h3>
-                    <p>Estimated monthly cost breakdown based on the recommended configuration. Prices shown are pay-as-you-go estimates for the selected Azure region.</p>
+                    <p>Estimated monthly cost breakdown based on the recommended configuration. Prices are sourced live from the <a href="https://learn.microsoft.com/en-us/rest/api/cost-management/retail-prices/azure-retail-prices" target="_blank" style="color: inherit; text-decoration: underline;">Azure Retail Prices API</a> for the selected region.</p>
+                    <div id="pricingStatus" style="margin-bottom: var(--spacing-s);"></div>
 
                     <div class="cost-breakdown" id="costBreakdown">
                         <!-- Populated by JS -->
@@ -2020,7 +2021,7 @@
                             <svg viewBox="0 0 16 16"><path d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-4a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 8 4zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/></svg>
                             Important
                         </div>
-                        <p class="mb-0">Cost estimates are approximate and based on publicly available Azure pricing. Actual costs may vary based on reserved instances, enterprise agreements, hybrid benefit, and other factors. Use the <a href="https://azure.microsoft.com/en-us/pricing/calculator/" target="_blank" style="color: inherit; text-decoration: underline;">Azure Pricing Calculator</a> for precise quotes.</p>
+                        <p class="mb-0">Prices are fetched live from the <a href="https://learn.microsoft.com/en-us/rest/api/cost-management/retail-prices/azure-retail-prices" target="_blank" style="color: inherit; text-decoration: underline;">Azure Retail Prices API</a> using pay-as-you-go Linux (base compute) rates — this is the correct VM cost for AVD when Windows licensing is covered by Microsoft 365. Actual costs may vary with reserved instances, Azure Hybrid Benefit, enterprise agreements, and other discounts. Use the <a href="https://azure.microsoft.com/en-us/pricing/calculator/" target="_blank" style="color: inherit; text-decoration: underline;">Azure Pricing Calculator</a> for precise quotes.</p>
                     </div>
                 </section>
 
@@ -2437,9 +2438,109 @@
         };
 
         // ============================================
+        // Azure Retail Prices API — live pricing
+        // https://learn.microsoft.com/en-us/rest/api/cost-management/retail-prices/azure-retail-prices
+        // ============================================
+        const priceCache = {};          // region → { sku → monthlyPrice }
+        let pricesReady = false;
+        let pricesFetchError = false;
+
+        function getUniqueSkus() {
+            const skus = new Set();
+            for (const series of Object.values(vmDatabase)) {
+                for (const vm of Object.values(series)) {
+                    skus.add(vm.sku);
+                }
+            }
+            return [...skus];
+        }
+
+        async function fetchPricesForRegion(region) {
+            // Validate region is alphanumeric (from select dropdown)
+            if (!/^[a-z0-9]+$/.test(region)) return;
+
+            if (priceCache[region]) {
+                applyPricesToDatabase(priceCache[region]);
+                pricesReady = true;
+                pricesFetchError = false;
+                updatePricingStatus();
+                return;
+            }
+
+            pricesReady = false;
+            pricesFetchError = false;
+            updatePricingStatus();
+
+            const skus = getUniqueSkus();
+            // Build OData filter: Linux (base compute) pricing for AVD
+            // AVD Windows licensing is per-user via M365, so VM cost = Linux rate
+            const skuFilter = skus.map(s => `armSkuName eq '${s}'`).join(' or ');
+            const baseFilter = `serviceName eq 'Virtual Machines' and armRegionName eq '${region}' and priceType eq 'Consumption' and (${skuFilter})`;
+
+            const prices = {};
+            let url = `https://prices.azure.com/api/retail/prices?$filter=${encodeURIComponent(baseFilter)}`;
+
+            try {
+                while (url) {
+                    const resp = await fetch(url);
+                    if (!resp.ok) throw new Error(`API returned ${resp.status}`);
+                    const data = await resp.json();
+                    for (const item of data.Items) {
+                        // Use Linux (non-Windows) pay-as-you-go, non-Spot pricing
+                        if (item.productName.includes('Windows')) continue;
+                        if (item.meterName.includes('Spot') || item.meterName.includes('Low Priority')) continue;
+                        // hourly → monthly (730 hrs)
+                        prices[item.armSkuName] = Math.round(item.retailPrice * 730);
+                    }
+                    url = data.NextPageLink || null;
+                }
+
+                priceCache[region] = prices;
+                applyPricesToDatabase(prices);
+                pricesReady = true;
+                pricesFetchError = false;
+            } catch (err) {
+                console.warn('Azure Retail Prices API error:', err);
+                pricesFetchError = true;
+                pricesReady = false;
+            }
+            updatePricingStatus();
+        }
+
+        function applyPricesToDatabase(prices) {
+            for (const series of Object.values(vmDatabase)) {
+                for (const vm of Object.values(series)) {
+                    if (prices[vm.sku] !== undefined) {
+                        vm.costPerMonth = prices[vm.sku];
+                    }
+                }
+            }
+        }
+
+        function updatePricingStatus() {
+            const el = document.getElementById('pricingStatus');
+            if (!el) return;
+            if (pricesReady) {
+                const region = document.getElementById('region').value;
+                el.innerHTML = `<span style="color:var(--color-status-success);font-size:12px;">&#10003; Live pricing for <strong>${document.getElementById('region').selectedOptions[0].text}</strong> via <a href="https://learn.microsoft.com/en-us/rest/api/cost-management/retail-prices/azure-retail-prices" target="_blank" style="color:inherit;text-decoration:underline;">Azure Retail Prices API</a></span>`;
+            } else if (pricesFetchError) {
+                el.innerHTML = '<span style="color:var(--color-status-warning);font-size:12px;">&#9888; Could not fetch live prices — using fallback estimates</span>';
+            } else {
+                el.innerHTML = '<span style="color:var(--color-neutral-foreground-3);font-size:12px;">&#8987; Fetching live prices&hellip;</span>';
+            }
+        }
+
+        // Fetch prices on page load
+        fetchPricesForRegion('eastus');
+
+        // ============================================
         // Sizing Calculation
         // ============================================
-        function calculateSizing() {
+        async function calculateSizing() {
+            // Ensure live prices are loaded for the selected region
+            const region = document.getElementById('region').value;
+            await fetchPricesForRegion(region);
+
             const concurrentUsers = parseInt(document.getElementById('concurrentUsers').value);
             const totalUsers = parseInt(document.getElementById('totalUsers').value) || concurrentUsers;
             const sessionType = document.querySelector('input[name="sessionType"]:checked').value;
@@ -2451,7 +2552,7 @@
             const profileStorage = document.getElementById('profileStorage').value;
             const profileSize = parseInt(document.getElementById('profileSize').value);
             const redundancy = document.getElementById('redundancy').value;
-            const region = document.getElementById('region').value;
+            // region already declared above for price fetch
             const peakHours = parseInt(document.getElementById('peakHours').value);
 
             const featureHA = document.getElementById('featureHA').checked;
@@ -2543,18 +2644,14 @@
             const safeLogonRatePerVm = primaryVm.vcpus * 1.875;
             const logonRateOk = perVmLogonRate <= safeLogonRatePerVm;
 
-            // Cost calculations
-            const regionMultiplier = {
-                'eastus': 1.0, 'westus2': 1.0, 'westeurope': 1.12,
-                'northeurope': 1.08, 'uksouth': 1.1, 'australiaeast': 1.2,
-                'southeastasia': 1.05, 'japaneast': 1.15
-            }[region] || 1.0;
+            // Cost calculations — prices come from Azure Retail Prices API (already applied to vmDatabase)
+            // No regional multiplier needed; API returns actual per-region prices
 
             // Autoscale savings (run at ~60% capacity off-peak, assuming 8 peak hours / 16 off-peak)
             const peakRatio = peakHours / 24;
             const autoscaleSavings = featureAutoscale ? (1 - peakRatio) * 0.4 : 0;
 
-            const vmMonthlyCost = totalVms * primaryVm.costPerMonth * regionMultiplier * (1 - autoscaleSavings);
+            const vmMonthlyCost = totalVms * primaryVm.costPerMonth * (1 - autoscaleSavings);
 
             // Storage cost
             const totalProfileStorageGB = totalUsers * profileSize;
@@ -2670,7 +2767,7 @@
 
             // Scaling plan next-step callout
             if (featureAutoscale) {
-                const savingsAmount = totalVms * primaryVm.costPerMonth * regionMultiplier * autoscaleSavings;
+                const savingsAmount = totalVms * primaryVm.costPerMonth * autoscaleSavings;
                 factorsHTML += `
                 <div class="callout callout--tip" style="margin-top: var(--spacing-l);">
                     <div class="callout__title">
@@ -2709,7 +2806,7 @@
                     <td>${secondaryVm.ram} GB${secondaryVm.gpu ? ' + ' + secondaryVm.gpu : ''}</td>
                     <td>${usersPerVmSecondary}</td>
                     <td>${vmsRequiredSecondary}</td>
-                    <td>$${formatNumber(Math.round(vmsRequiredSecondary * secondaryVm.costPerMonth * regionMultiplier))}</td>
+                    <td>$${formatNumber(Math.round(vmsRequiredSecondary * secondaryVm.costPerMonth))}</td>
                     <td><span class="badge badge--optional">Alternative</span></td>
                 </tr>
             `;
@@ -2740,7 +2837,7 @@
             });
 
             if (featureAutoscale) {
-                const savings = totalVms * primaryVm.costPerMonth * regionMultiplier * autoscaleSavings;
+                const savings = totalVms * primaryVm.costPerMonth * autoscaleSavings;
                 costHTML += `
                 <div class="cost-row">
                     <span class="cost-row__label" style="color:var(--color-success)">Autoscale savings (estimated)</span>
@@ -2765,7 +2862,7 @@
                 osVersion, baseVmsRequired, vmsRequiredSecondary, capacityBuffer,
                 vmsRequired, haBuffer, totalVms, featureHA, peakLogonRate,
                 perVmLogonRate, safeLogonRatePerVm, logonRateOk,
-                regionMultiplier, region, peakHours, autoscaleSavings,
+                region, peakHours, autoscaleSavings,
                 featureAutoscale, vmMonthlyCost, profileStorageCost,
                 osDiskTotalCost, additionalCost, totalMonthlyCost, costPerUser,
                 totalUsers, profileSize, totalProfileStorageGB, profileStorage,
@@ -2951,10 +3048,10 @@ ${d.perVmLogonRate.toFixed(1)} ${d.logonRateOk ? '≤' : '>'} ${d.safeLogonRateP
             html += `
             <div class="method-step">
                 <div class="method-step__title"><span class="method-step__num">7</span>Cost estimate</div>
-                <p>Costs are calculated from publicly available Azure pay-as-you-go pricing with a regional multiplier.</p>
+                <p>Costs are fetched live from the <a href="https://learn.microsoft.com/en-us/rest/api/cost-management/retail-prices/azure-retail-prices" target="_blank" style="color: var(--color-brand-primary);">Azure Retail Prices API</a> for the selected region. Linux (base compute) pricing is used because AVD Windows licensing is per-user via Microsoft 365.</p>
                 <div class="method-step__formula"><strong>Compute</strong>
-  = totalVMs × VM cost × region multiplier${d.featureAutoscale ? ' × (1 − autoscale savings)' : ''}
-  = ${d.totalVms} × $${formatNumber(d.primaryVm.costPerMonth)}/mo × ${d.regionMultiplier}${d.featureAutoscale ? ` × ${(1 - d.autoscaleSavings).toFixed(2)}` : ''}
+  = totalVMs × VM cost/mo${d.featureAutoscale ? ' × (1 − autoscale savings)' : ''}
+  = ${d.totalVms} × $${formatNumber(d.primaryVm.costPerMonth)}/mo${d.featureAutoscale ? ` × ${(1 - d.autoscaleSavings).toFixed(2)}` : ''}
   = <strong>$${formatNumber(Math.round(d.vmMonthlyCost))}/mo</strong>
 
 <strong>OS Disks</strong>
@@ -2969,7 +3066,7 @@ ${d.perVmLogonRate.toFixed(1)} ${d.logonRateOk ? '≤' : '>'} ${d.safeLogonRateP
 
 <strong>Total</strong> = $${formatNumber(Math.round(d.vmMonthlyCost))} + $${formatNumber(Math.round(d.osDiskTotalCost))} + $${formatNumber(Math.round(d.profileStorageCost))} + $${formatNumber(Math.round(d.additionalCost))} additional
   = <strong>$${formatNumber(Math.round(d.totalMonthlyCost))}/mo</strong>  (~$${formatNumber(Math.round(d.costPerUser))}/user/month)</div>
-                <p class="method-step__note">Region: ${regionNames[d.region] || d.region}. Prices are estimates — use the <a href="https://azure.microsoft.com/en-us/pricing/calculator/" target="_blank" style="color: var(--color-brand-primary);">Azure Pricing Calculator</a> for precise quotes.</p>
+                <p class="method-step__note">Region: ${regionNames[d.region] || d.region}. Prices sourced from <a href="https://learn.microsoft.com/en-us/rest/api/cost-management/retail-prices/azure-retail-prices" target="_blank" style="color: var(--color-brand-primary);">Azure Retail Prices API</a> (pay-as-you-go, Linux base). Actual costs may differ with reserved instances, enterprise agreements, or hybrid benefit — use the <a href="https://azure.microsoft.com/en-us/pricing/calculator/" target="_blank" style="color: var(--color-brand-primary);">Azure Pricing Calculator</a> for precise quotes.</p>
             </div>`;
 
             // Summary table of key values
@@ -3016,6 +3113,7 @@ ${d.perVmLogonRate.toFixed(1)} ${d.logonRateOk ? '≤' : '>'} ${d.safeLogonRateP
             document.getElementById('profileSizeVal').textContent = '30 GB';
             document.getElementById('redundancy').value = 'lrs';
             document.getElementById('region').value = 'eastus';
+            fetchPricesForRegion('eastus');
             document.getElementById('featureHA').checked = false;
             document.getElementById('featureBackup').checked = true;
             document.getElementById('featureMonitor').checked = true;
@@ -3106,7 +3204,8 @@ CAPACITY PLANNING FACTORS (MS Learn Sizing Guidelines)
   Logon Rate Status:     ${r.logonRateOk ? 'Within safe limits' : 'WARNING: May exceed safe per-VM logon rate'}
 
 ================================================================================
-  Note: These are estimates aligned with Microsoft's session host VM sizing guidelines.
+  Note: VM prices sourced live from the Azure Retail Prices API (pay-as-you-go,
+  Linux base compute). AVD Windows licensing is per-user via Microsoft 365.
   Use the Azure Pricing Calculator for precise quotes.
   https://azure.microsoft.com/en-us/pricing/calculator/
   Sizing guidelines: https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/session-host-virtual-machine-sizing-guidelines
